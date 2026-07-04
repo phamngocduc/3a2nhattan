@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Đường đua phép nhân phép chia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky-top:#bfe9ff;
+    --sky-bot:#eaf8ff;
+    --road:#4b5063;
+    --road-edge:#363a48;
+    --grass:#8fce6a;
+    --grass-dark:#7cbb59;
+    --sun:#ffd166;
+    --box:#fffdf7;
+    --box-border:#2f3140;
+    --accent-purple:#6c4bd6;
+    --accent-yellow:#ffc93c;
+    --accent-red:#ef4444;
+    --accent-green:#2fb673;
+    --ink:#2b2d3a;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;width:100%;height:100%;
+    overflow:hidden;
+    font-family:'Quicksand',sans-serif;
+    background:linear-gradient(180deg,var(--sky-top) 0%, var(--sky-bot) 55%, var(--grass) 55%, var(--grass-dark) 100%);
+    color:var(--ink);
+  }
+  .display, h1,h2,h3, .title-text, button{
+    font-family:'Baloo 2',cursive;
+  }
+  #app{
+    position:relative;
+    width:100vw;height:100vh;
+    display:flex;flex-direction:column;
+  }
+
+  /* ---------- HEADER ---------- */
+  #topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 22px;
+    background:rgba(255,255,255,0.55);
+    backdrop-filter:blur(6px);
+    border-bottom:3px dashed var(--accent-purple);
+    z-index:20;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  #titleBlock{display:flex;align-items:center;gap:10px;}
+  #titleBlock .badge{
+    background:var(--accent-purple);color:#fff;
+    width:38px;height:38px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;font-weight:800;
+    box-shadow:0 3px 0 #4c33a3;
+  }
+  #titleBlock .titles{line-height:1.15;}
+  #titleBlock h1{margin:0;font-size:19px;color:var(--accent-purple);}
+  #titleBlock .sub{margin:0;font-size:12.5px;color:#555;font-weight:600;}
+
+  #statusBar{
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    font-weight:700;font-size:14px;
+  }
+  #statusBar .pill{
+    background:#fff;border:2px solid var(--accent-purple);
+    border-radius:20px;padding:5px 14px;
+    display:flex;align-items:center;gap:6px;
+  }
+  #timerPill{border-color:var(--accent-red);color:var(--accent-red);}
+  #progressPill{border-color:var(--accent-green);color:var(--accent-green);}
+
+  /* ---------- ROAD STAGE ---------- */
+  #stage{
+    flex:1;position:relative;overflow:hidden;
+  }
+  #stage svg{width:100%;height:100%;display:block;}
+
+  .qbox{cursor:pointer;}
+  .qbox rect.body{
+    fill:var(--box); stroke:var(--box-border); stroke-width:4;
+    filter:drop-shadow(0 3px 0 rgba(0,0,0,0.25));
+    transition:transform .15s ease, fill .2s ease, stroke .2s ease;
+  }
+  .qbox.locked rect.body{ fill:#dfe1e8; opacity:.75;}
+  .qbox.locked{cursor:not-allowed;}
+  .qbox.current rect.body{ stroke:var(--accent-yellow); stroke-width:5; animation:pulse 1.1s infinite;}
+  .qbox.done rect.body{ fill:#defbe8; stroke:var(--accent-green);}
+  .qbox text{ font-family:'Baloo 2',cursive; font-weight:700; fill:var(--ink); }
+  .qbox .qmark{ fill:var(--accent-red); font-weight:800;}
+  .qbox.done .qmark{ fill:var(--accent-green); }
+  @keyframes pulse{
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.06); }
+  }
+
+  #playerCar{ transition: transform 0.9s cubic-bezier(.4,1.4,.4,1); }
+
+  /* ---------- INTRO OVERLAY ---------- */
+  .overlay{
+    position:absolute;inset:0;
+    background:rgba(20,20,35,0.55);
+    display:flex;align-items:center;justify-content:center;
+    z-index:50;
+  }
+  .card{
+    background:#fffdf7;border-radius:22px;
+    padding:28px 32px;width:min(420px,90vw);
+    box-shadow:0 12px 0 rgba(0,0,0,0.15), 0 20px 40px rgba(0,0,0,0.25);
+    border:4px solid var(--accent-purple);
+    text-align:center;
+  }
+  .card h2{margin:0 0 6px;color:var(--accent-purple);font-size:22px;}
+  .card p.tag{margin:0 0 18px;color:#666;font-size:13px;font-weight:600;}
+  .field{margin-bottom:14px;text-align:left;}
+  .field label{display:block;font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+  .field input{
+    width:100%;padding:10px 12px;border-radius:12px;
+    border:2px solid #cfd3e0;font-size:15px;font-family:'Quicksand',sans-serif;font-weight:600;
+    outline:none;
+  }
+  .field input:focus{border-color:var(--accent-purple);}
+  .btn{
+    border:none;border-radius:14px;padding:12px 20px;
+    font-family:'Baloo 2',cursive;font-size:17px;font-weight:700;color:#fff;
+    cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,0.25);
+    transition:transform .08s ease;
+  }
+  .btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,0.25);}
+  .btn-start{background:var(--accent-green);width:100%;margin-top:6px;}
+  .btn-purple{background:var(--accent-purple);}
+  .btn-grey{background:#9aa0b4;}
+  .hint{font-size:12px;color:#c0392b;font-weight:700;min-height:16px;margin-top:2px;}
+
+  /* ---------- ANSWER MODAL ---------- */
+  #answerModal .card{width:min(380px,88vw);}
+  #eqDisplay{
+    font-size:30px;font-weight:800;color:var(--accent-purple);
+    margin:6px 0 18px;
+  }
+  .spinner{
+    display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;
+  }
+  .spin-btn{
+    width:46px;height:46px;border-radius:50%;border:none;
+    background:var(--accent-yellow);color:var(--ink);
+    font-size:22px;font-weight:800;cursor:pointer;
+    box-shadow:0 3px 0 #d9a521;
+  }
+  .spin-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #d9a521;}
+  #answerInput{
+    width:100px;text-align:center;font-size:26px;font-weight:800;
+    border:3px solid var(--accent-purple);border-radius:14px;padding:8px;
+    font-family:'Baloo 2',cursive;
+  }
+  #answerInput:focus{outline:none;}
+  .shake{animation:shakeAnim .4s;}
+  @keyframes shakeAnim{
+    0%,100%{transform:translateX(0);}
+    20%{transform:translateX(-8px);}
+    40%{transform:translateX(8px);}
+    60%{transform:translateX(-6px);}
+    80%{transform:translateX(6px);}
+  }
+  .modal-actions{display:flex;gap:10px;margin-top:14px;}
+  .modal-actions .btn{flex:1;}
+
+  /* ---------- CONFETTI ---------- */
+  .confetti-piece{
+    position:absolute;top:-20px;width:10px;height:16px;border-radius:2px;
+    animation-name:fall;animation-timing-function:linear;animation-iteration-count:1;
+    z-index:60;
+  }
+  @keyframes fall{
+    to{ transform:translateY(110vh) rotate(540deg); opacity:0.9;}
+  }
+
+  /* ---------- FOOTER SIGNATURE ---------- */
+  #footerSig{
+    position:absolute;bottom:6px;right:14px;
+    font-size:11.5px;color:rgba(43,45,58,0.55);font-weight:700;
+    z-index:10;font-family:'Quicksand',sans-serif;
+    background:rgba(255,255,255,0.5);padding:3px 10px;border-radius:10px;
+  }
+
+  #startBtnWrap{display:flex;gap:8px;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="topbar">
+    <div id="titleBlock">
+      <div class="badge">3</div>
+      <div class="titles">
+        <h1>Đường đua phép nhân, phép chia</h1>
+        <p class="sub">Toán lớp 1 – Học kỳ 1 – Trang 26</p>
+      </div>
+    </div>
+    <div id="statusBar">
+      <div class="pill" id="namePill">👤 Chưa nhập tên</div>
+      <div class="pill" id="progressPill">🚗 0/12</div>
+      <div class="pill" id="timerPill">⏱ 00:00</div>
+      <div id="startBtnWrap">
+        <button class="btn btn-grey" id="fullscreenBtn" title="Toàn màn hình">⛶</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="stage">
+    <svg id="roadSvg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid slice"></svg>
+  </div>
+
+  <div id="footerSig">Designed by Thầy Phạm Ngọc Đức ☎ 0961366868</div>
+
+  <!-- INTRO OVERLAY -->
+  <div class="overlay" id="introOverlay">
+    <div class="card">
+      <h2>🏁 Đường đua phép nhân phép chia</h2>
+      <p class="tag">Trả lời đúng để đưa xe ô tô về đích thật nhanh nhé!</p>
+      <div class="field">
+        <label for="sttInput">Số thứ tự</label>
+        <input type="number" id="sttInput" min="1" placeholder="Ví dụ: 1" />
+      </div>
+      <div class="field">
+        <label for="nameInput">Họ và tên học sinh</label>
+        <input type="text" id="nameInput" placeholder="Ví dụ: Nguyễn Văn A" />
+      </div>
+      <div class="hint" id="introHint"></div>
+      <button class="btn btn-start" id="startGameBtn">🚦 Bắt đầu đua</button>
+    </div>
+  </div>
+
+  <!-- ANSWER MODAL -->
+  <div class="overlay" id="answerModal" style="display:none;">
+    <div class="card" id="answerCard">
+      <h2>Điền kết quả</h2>
+      <div id="eqDisplay">3 x 7 = ?</div>
+      <div class="spinner">
+        <button class="spin-btn" id="minusBtn">−</button>
+        <input type="number" id="answerInput" value="0" />
+        <button class="spin-btn" id="plusBtn">+</button>
+      </div>
+      <div class="hint" id="answerHint">&nbsp;</div>
+      <div class="modal-actions">
+        <button class="btn btn-grey" id="cancelBtn">Đóng</button>
+        <button class="btn btn-purple" id="submitBtn">Kiểm tra ✅</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINISH MODAL -->
+  <div class="overlay" id="finishOverlay" style="display:none;">
+    <div class="card">
+      <h2>🎉 Chúc mừng!</h2>
+      <p class="tag" id="finishName">Bạn Nguyễn Văn A</p>
+      <p style="font-size:17px;font-weight:700;margin:6px 0 4px;">đã về đích thành công!</p>
+      <p style="font-size:22px;font-weight:800;color:var(--accent-green);margin:6px 0 18px;">Thời gian: <span id="finishTime">00:00</span></p>
+      <button class="btn btn-start" id="replayBtn">🔁 Chơi lại</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============ AUDIO (Web Audio API synth, no external files) ============ */
+let audioCtx = null;
+function ac(){ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+
+function tone(freq, start, dur, type='sine', gainVal=0.18){
+  const ctx = ac();
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, ctx.currentTime+start);
+  g.gain.exponentialRampToValueAtTime(gainVal, ctx.currentTime+start+0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+start+dur);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(ctx.currentTime+start);
+  o.stop(ctx.currentTime+start+dur+0.02);
+}
+function playTing(){ tone(880,0,0.12,'sine',0.2); tone(1318.5,0.09,0.18,'sine',0.18); }
+function playTeng(){ tone(220,0,0.16,'sawtooth',0.15); tone(160,0.1,0.22,'sawtooth',0.15); }
+function playClap(){
+  const ctx = ac();
+  for(let i=0;i<14;i++){
+    const t = i*0.09 + Math.random()*0.02;
+    const bufferSize = 0.05*ctx.sampleRate;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let j=0;j<bufferSize;j++){ data[j] = (Math.random()*2-1)*(1-j/bufferSize); }
+    const src = ctx.createBufferSource(); src.buffer = buffer;
+    const g = ctx.createGain(); g.gain.value = 0.16;
+    src.connect(g); g.connect(ctx.destination);
+    src.start(ctx.currentTime + t);
+  }
+  [523,659,784,1046].forEach((f,i)=> tone(f, 1.1+i*0.16, 0.3,'triangle',0.15));
+}
+
+/* ============ PROBLEM GENERATION ============ */
+function genMult(){
+  const a = 1+Math.floor(Math.random()*9);
+  const b = 1+Math.floor(Math.random()*9);
+  return {type:'mult', a, b, answer:a*b, text:`${a} x ${b}`};
+}
+function genDiv(){
+  const d = 1+Math.floor(Math.random()*9);
+  const q = 1+Math.floor(Math.random()*9);
+  const dividend = d*q;
+  return {type:'div', a:dividend, b:d, answer:q, text:`${dividend} : ${d}`};
+}
+function generateProblems(){
+  let types = [];
+  for(let i=0;i<6;i++) types.push('mult');
+  for(let i=0;i<6;i++) types.push('div');
+  // shuffle but avoid 3 same in a row for a nice xen-ke feel
+  for(let i=types.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [types[i],types[j]] = [types[j],types[i]];
+  }
+  for(let i=2;i<types.length;i++){
+    if(types[i]===types[i-1] && types[i]===types[i-2]){
+      for(let k=i+1;k<types.length;k++){
+        if(types[k]!==types[i]){ [types[i],types[k]]=[types[k],types[i]]; break; }
+      }
+    }
+  }
+  return types.map(t => t==='mult'? genMult(): genDiv());
+}
+
+/* ============ ROAD LAYOUT ============ */
+// 12 stop coordinates along the winding road (matches visual S-curve)
+const STOPS = [
+  {x:200,y:110},{x:400,y:110},{x:600,y:110},{x:800,y:110},
+  {x:800,y:290},{x:600,y:290},{x:400,y:290},{x:200,y:290},
+  {x:250,y:470},{x:450,y:470},{x:650,y:470},{x:850,y:470}
+];
+const START_POS = {x:50,y:110};
+const FINISH_POS = {x:950,y:470};
+
+const ROAD_PATH = "M50,110 L850,110 Q900,110 900,160 L900,240 Q900,290 850,290 L150,290 Q100,290 100,340 L100,420 Q100,470 150,470 L950,470";
+
+function svgEl(tag, attrs){
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for(const k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+
+function tree(x,y,scale=1){
+  const g = svgEl('g',{transform:`translate(${x},${y}) scale(${scale})`});
+  g.appendChild(svgEl('rect',{x:-4,y:10,width:8,height:16,fill:'#8a5a34',rx:2}));
+  g.appendChild(svgEl('circle',{cx:0,cy:-2,r:20,fill:'#4fa85c'}));
+  g.appendChild(svgEl('circle',{cx:-13,cy:6,r:14,fill:'#5cb96a'}));
+  g.appendChild(svgEl('circle',{cx:13,cy:6,r:14,fill:'#5cb96a'}));
+  return g;
+}
+function rock(x,y,scale=1){
+  const g = svgEl('g',{transform:`translate(${x},${y}) scale(${scale})`});
+  g.appendChild(svgEl('ellipse',{cx:0,cy:8,rx:26,ry:12,fill:'#a9a49a'}));
+  g.appendChild(svgEl('ellipse',{cx:-14,cy:0,rx:16,ry:14,fill:'#bdb8ae'}));
+  g.appendChild(svgEl('ellipse',{cx:12,cy:-2,rx:18,ry:16,fill:'#cfc9bd'}));
+  return g;
+}
+function houseWithMill(x,y,scale=1){
+  const g = svgEl('g',{transform:`translate(${x},${y}) scale(${scale})`});
+  g.appendChild(svgEl('rect',{x:-22,y:0,width:44,height:30,fill:'#f6d9a0',stroke:'#b98545',['stroke-width']:2,rx:3}));
+  g.appendChild(svgEl('polygon',{points:'-26,0 0,-20 26,0',fill:'#e2574c',stroke:'#a5342b',['stroke-width']:2}));
+  g.appendChild(svgEl('rect',{x:-6,y:12,width:12,height:18,fill:'#8a5a34'}));
+  // mill
+  const mill = svgEl('g',{transform:'translate(30,-6)'});
+  mill.appendChild(svgEl('rect',{x:-2,y:0,width:4,height:26,fill:'#8a5a34'}));
+  const blades = svgEl('g',{transform:'translate(0,0)'});
+  for(let i=0;i<4;i++){
+    const b = svgEl('ellipse',{cx:0,cy:-11,rx:4,ry:11,fill:'#e8e2d4',stroke:'#8a5a34',['stroke-width']:1.4,
+      transform:`rotate(${i*90})`});
+    blades.appendChild(b);
+  }
+  mill.appendChild(blades);
+  g.appendChild(mill);
+  return g;
+}
+function pond(x,y){
+  const g = svgEl('g',{transform:`translate(${x},${y})`});
+  g.appendChild(svgEl('ellipse',{cx:0,cy:0,rx:95,ry:52,fill:'#7ec8e3',stroke:'#4a9bc2',['stroke-width']:3}));
+  g.appendChild(svgEl('path',{d:'M-50,-6 Q-30,-14 -10,-6 T30,-6', stroke:'#bfe6f4',['stroke-width']:3,fill:'none',opacity:0.8}));
+  g.appendChild(svgEl('path',{d:'M-30,14 Q-10,6 10,14 T50,14', stroke:'#bfe6f4',['stroke-width']:3,fill:'none',opacity:0.8}));
+  return g;
+}
+function carSVG(color1,color2,flip=false){
+  const g = svgEl('g',{transform: flip? 'scale(-1,1)':''});
+  g.appendChild(svgEl('rect',{x:-34,y:-6,width:68,height:20,rx:8,fill:color1,stroke:'#2b2d3a',['stroke-width']:2}));
+  g.appendChild(svgEl('path',{d:'M-14,-6 L-4,-22 L18,-22 L26,-6 Z',fill:color2,stroke:'#2b2d3a',['stroke-width']:2}));
+  g.appendChild(svgEl('rect',{x:-1,y:-20,width:16,height:11,fill:'#bfe6f4',stroke:'#2b2d3a',['stroke-width']:1.4,rx:2}));
+  g.appendChild(svgEl('circle',{cx:-18,cy:14,r:8,fill:'#2b2d3a'}));
+  g.appendChild(svgEl('circle',{cx:-18,cy:14,r:3,fill:'#cfd3e0'}));
+  g.appendChild(svgEl('circle',{cx:18,cy:14,r:8,fill:'#2b2d3a'}));
+  g.appendChild(svgEl('circle',{cx:18,cy:14,r:3,fill:'#cfd3e0'}));
+  return g;
+}
+
+let svg, playerCarG, problems=[], currentIndex=0, timerInterval=null, startTime=null, elapsedFrozen=null;
+
+function buildRoad(){
+  svg = document.getElementById('roadSvg');
+  svg.innerHTML = '';
+
+  // sun
+  svg.appendChild(svgEl('circle',{cx:930,cy:55,r:34,fill:'#ffe08a'}));
+  svg.appendChild(svgEl('circle',{cx:930,cy:55,r:24,fill:'#ffd166'}));
+
+  // clouds
+  [[120,50],[520,40],[780,40]].forEach(([cx,cy])=>{
+    const c = svgEl('g',{opacity:0.9});
+    c.appendChild(svgEl('ellipse',{cx:cx,cy:cy,rx:26,ry:14,fill:'#ffffff'}));
+    c.appendChild(svgEl('ellipse',{cx:cx+20,cy:cy+4,rx:20,ry:11,fill:'#ffffff'}));
+    c.appendChild(svgEl('ellipse',{cx:cx-20,cy:cy+4,rx:20,ry:11,fill:'#ffffff'}));
+    svg.appendChild(c);
+  });
+
+  // road edge (wider, darker) then road fill, then dashed centerline
+  svg.appendChild(svgEl('path',{d:ROAD_PATH, fill:'none', stroke:'var(--road-edge)', ['stroke-width']:64, ['stroke-linecap']:'round', ['stroke-linejoin']:'round'}));
+  svg.appendChild(svgEl('path',{d:ROAD_PATH, fill:'none', stroke:'var(--road)', ['stroke-width']:56, ['stroke-linecap']:'round', ['stroke-linejoin']:'round'}));
+  svg.appendChild(svgEl('path',{d:ROAD_PATH, fill:'none', stroke:'#ffffff', ['stroke-width']:3, ['stroke-dasharray']:'14 12', ['stroke-linecap']:'round', opacity:0.85}));
+
+  // decorations
+  svg.appendChild(tree(40,60,0.9));
+  svg.appendChild(tree(500,55,0.8));
+  svg.appendChild(tree(920,150,0.9));
+  svg.appendChild(tree(60,250,0.9));
+  svg.appendChild(tree(940,410,0.8));
+  svg.appendChild(tree(60,530,0.9));
+  svg.appendChild(tree(900,530,0.9));
+  svg.appendChild(tree(320,430,0.7));
+
+  svg.appendChild(rock(895,205,1));
+  svg.appendChild(rock(95,390,1));
+  svg.appendChild(rock(850,505,0.8));
+
+  svg.appendChild(houseWithMill(880,60,0.9));
+  svg.appendChild(houseWithMill(65,330,0.9));
+
+  svg.appendChild(pond(500,195));
+
+  // start car (decorative, checkered start)
+  const startCar = carSVG('#ef4444','#f59e0b');
+  startCar.setAttribute('transform', `translate(${START_POS.x-14},${START_POS.y+40}) scale(1.05)`);
+  svg.appendChild(startCar);
+
+  // finish flag + finish car
+  const flagPole = svgEl('line',{x1:FINISH_POS.x+10,y1:FINISH_POS.y-45,x2:FINISH_POS.x+10,y2:FINISH_POS.y+30, stroke:'#2b2d3a', ['stroke-width']:3});
+  svg.appendChild(flagPole);
+  const flag = svgEl('g',{});
+  for(let r=0;r<4;r++){
+    for(let c=0;c<3;c++){
+      flag.appendChild(svgEl('rect',{x:FINISH_POS.x+13+c*8, y:FINISH_POS.y-45+r*8, width:8, height:8, fill:(r+c)%2===0?'#111':'#fff'}));
+    }
+  }
+  svg.appendChild(flag);
+  const finishCar = carSVG('#2fb673','#1f8a56');
+  finishCar.setAttribute('transform', `translate(${FINISH_POS.x-14},${FINISH_POS.y+40}) scale(1.05)`);
+  svg.appendChild(finishCar);
+
+  // question boxes
+  STOPS.forEach((pt,i)=>{
+    const g = svgEl('g',{class:'qbox locked', id:`qbox-${i}`});
+    g.appendChild(svgEl('rect',{class:'body', x:pt.x-58, y:pt.y-24, width:116, height:48, rx:12}));
+    const eqText = svgEl('text',{x:pt.x-8, y:pt.y+7, ['text-anchor']:'middle', ['font-size']:17, id:`eqtext-${i}`});
+    eqText.textContent = '...';
+    const qMark = svgEl('text',{class:'qmark', x:pt.x+40, y:pt.y+7, ['text-anchor']:'middle', ['font-size']:17, id:`qmark-${i}`});
+    qMark.textContent = '?';
+    g.appendChild(eqText);
+    g.appendChild(qMark);
+    g.addEventListener('click', ()=> onBoxClick(i));
+    svg.appendChild(g);
+  });
+
+  // player's car
+  playerCarG = carSVG('#6c4bd6','#4c33a3');
+  playerCarG.setAttribute('id','playerCar');
+  playerCarG.setAttribute('transform', `translate(${START_POS.x},${START_POS.y+40}) scale(0.85)`);
+  svg.appendChild(playerCarG);
+}
+
+function movePlayerCar(pos, flip){
+  playerCarG.setAttribute('transform', `translate(${pos.x},${pos.y+40}) scale(${flip?-0.85:0.85},0.85)`);
+}
+
+function renderProblemsOnBoxes(){
+  problems.forEach((p,i)=>{
+    document.getElementById(`eqtext-${i}`).textContent = `${p.text} =`;
+  });
+}
+
+function refreshBoxStates(){
+  STOPS.forEach((pt,i)=>{
+    const g = document.getElementById(`qbox-${i}`);
+    g.classList.remove('locked','current','done');
+    if(i < currentIndex) g.classList.add('done');
+    else if(i === currentIndex) g.classList.add('current');
+    else g.classList.add('locked');
+  });
+  document.getElementById('progressPill').textContent = `🚗 ${currentIndex}/12`;
+}
+
+function markDone(i){
+  document.getElementById(`qmark-${i}`).textContent = '✓';
+}
+
+/* ============ TIMER ============ */
+function fmtTime(sec){
+  const m = Math.floor(sec/60).toString().padStart(2,'0');
+  const s = Math.floor(sec%60).toString().padStart(2,'0');
+  return `${m}:${s}`;
+}
+function startTimer(){
+  startTime = Date.now();
+  timerInterval = setInterval(()=>{
+    const sec = (Date.now()-startTime)/1000;
+    document.getElementById('timerPill').textContent = `⏱ ${fmtTime(sec)}`;
+  }, 250);
+}
+function stopTimer(){
+  clearInterval(timerInterval);
+  elapsedFrozen = (Date.now()-startTime)/1000;
+  document.getElementById('timerPill').textContent = `⏱ ${fmtTime(elapsedFrozen)}`;
+}
+
+/* ============ GAME FLOW ============ */
+let studentName='', studentSTT='';
+
+document.getElementById('startGameBtn').addEventListener('click', ()=>{
+  const stt = document.getElementById('sttInput').value.trim();
+  const name = document.getElementById('nameInput').value.trim();
+  if(!stt || !name){
+    document.getElementById('introHint').textContent = 'Vui lòng nhập đầy đủ số thứ tự và họ tên!';
+    return;
+  }
+  studentSTT = stt; studentName = name;
+  document.getElementById('namePill').textContent = `👤 ${stt}. ${name}`;
+  document.getElementById('introOverlay').style.display = 'none';
+  currentIndex = 0;
+  problems = generateProblems();
+  renderProblemsOnBoxes();
+  refreshBoxStates();
+  movePlayerCar(START_POS,false);
+  startTimer();
+});
+
+function onBoxClick(i){
+  if(i !== currentIndex) return;
+  const p = problems[i];
+  document.getElementById('eqDisplay').textContent = `${p.text} = ?`;
+  document.getElementById('answerInput').value = 0;
+  document.getElementById('answerHint').textContent = '\u00A0';
+  document.getElementById('answerModal').style.display='flex';
+  document.getElementById('answerModal').dataset.index = i;
+  setTimeout(()=>document.getElementById('answerInput').focus(), 50);
+}
+
+document.getElementById('cancelBtn').addEventListener('click', ()=>{
+  document.getElementById('answerModal').style.display='none';
+});
+document.getElementById('minusBtn').addEventListener('click', ()=>{
+  const inp = document.getElementById('answerInput');
+  inp.value = (parseInt(inp.value||0)-1);
+});
+document.getElementById('plusBtn').addEventListener('click', ()=>{
+  const inp = document.getElementById('answerInput');
+  inp.value = (parseInt(inp.value||0)+1);
+});
+
+function submitAnswer(){
+  const i = parseInt(document.getElementById('answerModal').dataset.index);
+  const p = problems[i];
+  const val = parseInt(document.getElementById('answerInput').value);
+  if(isNaN(val)){
+    document.getElementById('answerHint').textContent = 'Hãy nhập một số nhé!';
+    return;
+  }
+  if(val === p.answer){
+    playTing();
+    document.getElementById('answerHint').style.color = 'var(--accent-green)';
+    document.getElementById('answerHint').textContent = 'Chính xác! 🎉';
+    markDone(i);
+    currentIndex++;
+    refreshBoxStates();
+    const flip = STOPS.length>0 && (i>=4 && i<=7); // moving right-to-left row uses flipped car
+    if(currentIndex < STOPS.length){
+      movePlayerCar(STOPS[currentIndex], currentIndex>=4 && currentIndex<=7);
+    } else {
+      movePlayerCar(FINISH_POS,false);
+    }
+    setTimeout(()=>{
+      document.getElementById('answerModal').style.display='none';
+      if(currentIndex >= STOPS.length){
+        finishGame();
+      }
+    }, 500);
+  } else {
+    playTeng();
+    document.getElementById('answerHint').style.color = 'var(--accent-red)';
+    document.getElementById('answerHint').textContent = 'Chưa đúng, thử lại nhé!';
+    const card = document.getElementById('answerCard');
+    card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+  }
+}
+document.getElementById('submitBtn').addEventListener('click', submitAnswer);
+document.getElementById('answerInput').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter') submitAnswer();
+});
+
+function spawnConfetti(){
+  const colors = ['#ef4444','#ffc93c','#2fb673','#6c4bd6','#3aa0e0','#ff8fab'];
+  for(let i=0;i<90;i++){
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.left = (Math.random()*100)+'vw';
+    el.style.background = colors[Math.floor(Math.random()*colors.length)];
+    el.style.animationDuration = (2.2+Math.random()*1.8)+'s';
+    el.style.animationDelay = (Math.random()*0.6)+'s';
+    el.style.opacity = 0.9;
+    document.getElementById('app').appendChild(el);
+    setTimeout(()=>el.remove(), 5000);
+  }
+}
+
+function finishGame(){
+  stopTimer();
+  playClap();
+  spawnConfetti();
+  document.getElementById('finishName').textContent = `Bạn ${studentSTT}. ${studentName}`;
+  document.getElementById('finishTime').textContent = fmtTime(elapsedFrozen);
+  document.getElementById('finishOverlay').style.display='flex';
+}
+
+document.getElementById('replayBtn').addEventListener('click', ()=>{
+  document.getElementById('finishOverlay').style.display='none';
+  document.getElementById('introOverlay').style.display='flex';
+  document.getElementById('sttInput').value='';
+  document.getElementById('nameInput').value='';
+  document.getElementById('namePill').textContent = '👤 Chưa nhập tên';
+  document.getElementById('timerPill').textContent = '⏱ 00:00';
+  document.getElementById('progressPill').textContent = '🚗 0/12';
+  buildRoad();
+});
+
+document.getElementById('fullscreenBtn').addEventListener('click', ()=>{
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen().catch(()=>{});
+  } else {
+    document.exitFullscreen();
+  }
+});
+
+buildRoad();
+</script>
+</body>
+</html>
