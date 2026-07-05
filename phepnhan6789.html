@@ -308,9 +308,41 @@ body{
 }
 
 @media (max-width:600px){
-  .popup-win{left:4vw;width:92vw;top:6%;}
+  .popup-win{
+    left:2.5vw !important;top:4% !important;
+    width:95vw;max-height:92vh;
+  }
+  .popup-header{padding:12px 12px;font-size:14px;}
+  .popup-header button{width:32px;height:32px;font-size:14px;}
+  .popup-body{padding:12px;}
+  .popup-problem{font-size:15px;line-height:1.4;}
+  .popup-zone-label{font-size:11px;}
+  .popup-pool,.popup-drop{padding:8px;gap:8px;}
+  .drag-block{padding:5px 6px;gap:4px;}
+  .drag-block .dot-y{width:18px;height:18px;}
+  .popup-drop .drag-block{max-width:100%;}
+  .popup-actions{gap:8px;}
+  .popup-actions .btn{flex:1 1 calc(50% - 8px);padding:12px 8px;font-size:13px;text-align:center;}
+  .popup-feedback{font-size:14px;}
   .pill-title{padding:9px 20px;}
   .answer-box{width:62px;height:42px;font-size:19px;}
+  .tabs{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:8px;
+    padding:10px 10px 0;overflow:visible;
+  }
+  .tab-btn{
+    width:100%;text-align:center;border-radius:14px;padding:10px 6px;
+    font-size:14px;top:0;
+  }
+  .tab-btn.active{box-shadow:0 2px 8px rgba(0,0,0,.12);}
+  .topbar{padding:10px 12px;}
+  .student-info input{width:90px;}
+  .student-info input#stName{width:130px;}
+}
+@media (min-width:601px) and (max-width:860px){
+  .tabs{flex-wrap:wrap;}
+  .tab-btn{flex:1 1 auto;text-align:center;}
+  .popup-win{width:88vw;left:6vw;}
 }
 </style>
 </head>
@@ -482,13 +514,23 @@ function renderExplainer(n){
   const el = document.getElementById('explainer-'+n);
 
   if(st.completed){
+    const idx = TABLES.indexOf(n);
+    const nextN = idx>=0 && idx<TABLES.length-1 ? TABLES[idx+1] : null;
     el.innerHTML = `
       <div class="finish-banner">
         <div class="finish-emojis">🎉⭐🎊🏆🎊⭐🎉</div>
         <h2>Chúc mừng con đã học xong bảng nhân ${n}!</h2>
         <div class="finish-time">⏱ Thời gian hoàn thành: ${fmtTime(st.elapsed)}</div>
-        <p style="margin-top:10px;font-weight:700;color:#5B6B82;">Hãy chuyển sang tab khác để tiếp tục luyện tập nhé!</p>
+        ${nextN
+          ? `<div class="action-row" style="justify-content:center;margin-top:16px;">
+               <button class="btn btn-primary" id="next-tab-btn">➡ Sang bảng nhân ${nextN}</button>
+             </div>`
+          : `<p style="margin-top:10px;font-weight:800;color:var(--green-dark);">🏆 Con đã hoàn thành tất cả các bảng nhân 6, 7, 8, 9!</p>`
+        }
       </div>`;
+    if(nextN){
+      document.getElementById('next-tab-btn').addEventListener('click', ()=>switchTab(nextN));
+    }
     return;
   }
 
