@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Phép nhân 6 · 7 · 8 · 9</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBF7EC;
+  --paper-line:#EDE6D3;
+  --navy:#2F5D8A;
+  --navy-dark:#203E5D;
+  --tray:#3D6FA0;
+  --tray-dark:#2C517B;
+  --yellow:#FFD93B;
+  --yellow-dark:#E3B400;
+  --green:#4C9A2A;
+  --green-dark:#367018;
+  --coral:#E4572E;
+  --coral-dark:#B93F1B;
+  --ink:#223047;
+  --ink-soft:#5B6B82;
+  --card:#FFFFFF;
+  --grey:#C7CFD8;
+  --grey-light:#EEF1F5;
+  --radius:18px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  font-family:'Nunito',system-ui,sans-serif;
+  background:
+    radial-gradient(circle at 6% 10%, #8FAE4F 0%, #8FAE4F 8%, transparent 8.4%),
+    radial-gradient(circle at 95% 18%, #2C517B 0%, #2C517B 10%, transparent 10.4%),
+    var(--paper);
+  color:var(--ink);
+  min-height:100vh;
+  min-height:100dvh;
+  display:flex;
+  flex-direction:column;
+  overflow-x:hidden;
+}
+.leaf{position:fixed;font-size:22px;color:#8FAE4F;opacity:.55;pointer-events:none;z-index:0;}
+.leaf.l1{top:10%;left:2%;transform:rotate(-20deg);}
+.leaf.l2{top:78%;right:3%;transform:rotate(15deg);}
+.leaf.l3{top:45%;left:1%;transform:rotate(40deg);}
+.leaf.l4{top:60%;right:1%;transform:rotate(-30deg);}
+
+/* ---------- TOPBAR ---------- */
+.topbar{
+  position:relative;z-index:2;
+  display:flex;flex-wrap:wrap;align-items:center;gap:12px;
+  padding:12px 18px;
+  background:linear-gradient(180deg,var(--navy) 0%, var(--navy-dark) 100%);
+  color:#fff;
+  box-shadow:0 4px 14px rgba(0,0,0,.18);
+}
+.brand{
+  font-family:'Baloo 2',sans-serif;
+  font-weight:800;
+  font-size:clamp(18px,2.6vw,26px);
+  letter-spacing:.3px;
+  margin-right:auto;
+  display:flex;align-items:center;gap:10px;
+}
+.brand .sub{
+  font-family:'Nunito',sans-serif;font-weight:600;font-size:12px;
+  background:var(--yellow);color:var(--navy-dark);
+  padding:3px 9px;border-radius:20px;
+}
+.student-info{
+  display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+}
+.student-info label{font-size:12px;font-weight:700;opacity:.9;margin-right:4px;}
+.student-info input{
+  border:none;border-radius:10px;padding:7px 10px;
+  font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;
+  width:110px;background:#fff;color:var(--ink);
+}
+.student-info input#stName{width:160px;}
+.fs-btn{
+  background:var(--coral);border:none;color:#fff;border-radius:10px;
+  padding:8px 12px;font-weight:800;cursor:pointer;font-size:15px;
+  box-shadow:0 2px 0 var(--coral-dark);
+}
+.fs-btn:active{transform:translateY(2px);box-shadow:none;}
+
+/* ---------- TABS ---------- */
+.tabs{
+  position:relative;z-index:2;
+  display:flex;gap:8px;padding:12px 16px 0;overflow-x:auto;
+  scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none;}
+.tab-btn{
+  flex:0 0 auto;
+  font-family:'Baloo 2',sans-serif;font-weight:700;font-size:clamp(13px,1.8vw,17px);
+  padding:10px 20px;border:none;cursor:pointer;
+  border-radius:16px 16px 0 0;
+  background:#DCE3EC;color:var(--navy-dark);
+  transition:background .15s,color .15s,transform .1s;
+  position:relative;top:2px;
+}
+.tab-btn .dot-badge{
+  display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);
+  margin-left:6px;vertical-align:middle;opacity:0;transition:opacity .2s;
+}
+.tab-btn.done .dot-badge{opacity:1;}
+.tab-btn.active{
+  background:var(--paper);color:var(--navy-dark);
+  box-shadow:0 -3px 10px rgba(0,0,0,.08);
+}
+.tab-btn:not(.active):hover{background:#c9d3e0;}
+
+/* ---------- PANELS ---------- */
+.panels{flex:1;position:relative;z-index:1;}
+.panel{display:none;padding:18px;max-width:1280px;margin:0 auto;}
+.panel.active{display:block;animation:fadein .25s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+.panel-head{
+  display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-bottom:14px;
+}
+.pill-title{
+  font-family:'Baloo 2',sans-serif;font-weight:800;color:#fff;
+  background:linear-gradient(180deg,var(--navy) 0%, var(--navy-dark) 100%);
+  padding:12px 30px;border-radius:40px;font-size:clamp(18px,2.8vw,26px);
+  box-shadow:0 4px 0 rgba(0,0,0,.15);
+}
+.timer-chip{
+  font-family:'Baloo 2',sans-serif;font-weight:700;font-size:16px;
+  background:var(--card);border:2px solid var(--coral);color:var(--coral-dark);
+  padding:8px 16px;border-radius:30px;display:flex;align-items:center;gap:6px;
+}
+.progress-wrap{flex:1;min-width:180px;}
+.progress-track{
+  height:14px;border-radius:10px;background:var(--grey-light);overflow:hidden;
+  border:2px solid var(--grey);
+}
+.progress-fill{
+  height:100%;background:linear-gradient(90deg,var(--green),#7EC84A);
+  width:0%;transition:width .4s ease;border-radius:10px 0 0 10px;
+}
+.progress-label{font-size:12px;font-weight:700;color:var(--ink-soft);margin-top:3px;}
+
+.grid{
+  display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start;
+}
+@media (max-width:860px){
+  .grid{grid-template-columns:1fr;}
+}
+
+/* ---- left card: explainer ---- */
+.card{
+  background:var(--card);border-radius:var(--radius);
+  box-shadow:0 6px 18px rgba(34,48,71,.10);
+  padding:18px 20px;
+}
+.sentence{font-size:clamp(15px,2vw,19px);font-weight:700;margin:2px 0 12px;}
+.trays{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.tray{
+  display:flex;gap:6px;background:var(--tray);border:3px solid var(--tray-dark);
+  border-radius:10px;padding:7px 8px;flex-wrap:wrap;
+  animation:trayin .35s ease both;
+}
+@keyframes trayin{from{opacity:0;transform:translateX(-10px);}to{opacity:1;transform:translateX(0);}}
+.dot-y{
+  width:26px;height:26px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #FFF1A8, var(--yellow) 60%, var(--yellow-dark) 100%);
+  border:2px solid #B98900;flex:0 0 auto;
+}
+.sum-line{
+  font-family:'Baloo 2',sans-serif;font-weight:700;color:var(--coral-dark);
+  font-size:clamp(14px,2vw,18px);margin-bottom:14px;line-height:1.5;word-break:break-word;
+}
+.eq-row{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;
+}
+.eq-text{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:clamp(18px,2.6vw,24px);color:var(--ink);}
+.eq-text b{color:var(--coral-dark);}
+.answer-box{
+  width:74px;height:48px;border:3px solid var(--navy);border-radius:12px;
+  font-family:'Baloo 2',sans-serif;font-size:22px;font-weight:800;text-align:center;
+  color:var(--navy-dark);background:#fff;
+}
+.answer-box:focus{outline:3px solid var(--yellow);border-color:var(--coral);}
+.answer-box.shake{animation:shake .4s;border-color:var(--coral);}
+@keyframes shake{
+  10%,90%{transform:translateX(-1px);}
+  20%,80%{transform:translateX(3px);}
+  30%,50%,70%{transform:translateX(-6px);}
+  40%,60%{transform:translateX(6px);}
+}
+.stepper{display:flex;gap:4px;}
+.stepper button{
+  width:32px;height:32px;border-radius:8px;border:none;background:var(--grey-light);
+  font-weight:800;font-size:16px;cursor:pointer;color:var(--navy-dark);
+}
+.stepper button:hover{background:var(--grey);}
+.btn{
+  font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;
+  border:none;border-radius:12px;padding:11px 18px;cursor:pointer;
+  box-shadow:0 3px 0 rgba(0,0,0,.18);transition:transform .08s;
+}
+.btn:active{transform:translateY(2px);box-shadow:none;}
+.btn-primary{background:var(--green);color:#fff;box-shadow:0 3px 0 var(--green-dark);}
+.btn-secondary{background:var(--yellow);color:#5B4200;box-shadow:0 3px 0 var(--yellow-dark);}
+.btn-ghost{background:var(--grey-light);color:var(--ink);}
+.action-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+.feedback{
+  margin-top:12px;font-weight:800;font-family:'Baloo 2',sans-serif;font-size:16px;
+  min-height:24px;
+}
+.feedback.ok{color:var(--green-dark);}
+.feedback.bad{color:var(--coral-dark);}
+
+.finish-banner{
+  background:linear-gradient(135deg,#FFF6D8,#FFE9A6);
+  border:3px dashed var(--yellow-dark);border-radius:var(--radius);
+  padding:22px;text-align:center;
+}
+.finish-banner h2{font-family:'Baloo 2',sans-serif;color:var(--coral-dark);margin:0 0 8px;font-size:clamp(20px,3vw,28px);}
+.finish-emojis{font-size:28px;letter-spacing:8px;margin:6px 0;}
+.finish-time{font-family:'Baloo 2',sans-serif;font-size:18px;color:var(--navy-dark);font-weight:800;}
+
+/* ---- right card: bảng nhân list ---- */
+.list-card{padding:14px 18px;}
+.list-title{
+  font-family:'Baloo 2',sans-serif;font-weight:700;color:var(--navy-dark);
+  font-size:15px;margin:0 0 8px;text-align:center;
+}
+.eq-row-list{
+  display:flex;align-items:center;gap:10px;padding:6px 4px;border-radius:10px;
+  font-family:'Baloo 2',sans-serif;font-weight:700;font-size:clamp(15px,2vw,18px);
+  color:var(--grey);transition:background .2s,color .2s;
+}
+.eq-row-list.current{background:#EAF3FF;color:var(--navy-dark);}
+.eq-row-list.done{color:var(--coral-dark);}
+.eq-row-list .val{margin-left:auto;min-width:34px;text-align:right;}
+.eq-row-list.done .val{color:var(--coral);}
+.eq-row-list.current .val{color:var(--navy);}
+.arrow-line{
+  display:flex;align-items:center;justify-content:flex-end;gap:6px;
+  font-size:11px;font-weight:800;color:var(--navy);opacity:0;height:16px;
+  transition:opacity .3s;padding-right:4px;
+}
+.arrow-line.show{opacity:1;}
+.arrow-line svg{width:16px;height:12px;}
+
+/* ---------- POPUP: đếm trực quan ---------- */
+.popup-overlay{
+  position:fixed;inset:0;background:rgba(20,30,45,.35);
+  display:none;align-items:flex-start;justify-content:flex-start;z-index:1000;
+}
+.popup-overlay.show{display:block;}
+.popup-win{
+  position:fixed;top:8%;left:20%;
+  width:min(600px,92vw);max-height:80vh;
+  background:var(--paper);border-radius:16px;overflow:hidden;
+  box-shadow:0 18px 40px rgba(0,0,0,.35);
+  display:flex;flex-direction:column;
+  border:3px solid var(--navy);
+}
+.popup-header{
+  background:linear-gradient(180deg,var(--navy),var(--navy-dark));color:#fff;
+  padding:10px 14px;display:flex;align-items:center;justify-content:space-between;
+  cursor:grab;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;
+  touch-action:none;user-select:none;
+}
+.popup-header button{
+  background:var(--coral);border:none;color:#fff;border-radius:8px;
+  width:28px;height:28px;font-weight:800;cursor:pointer;
+}
+.popup-body{padding:14px 16px;overflow-y:auto;flex:1;}
+.popup-problem{
+  text-align:center;font-family:'Baloo 2',sans-serif;font-weight:800;
+  font-size:clamp(18px,2.4vw,24px);color:var(--coral-dark);margin:2px 0 12px;
+}
+.popup-zone-label{font-size:12px;font-weight:800;color:var(--ink-soft);margin:8px 0 6px;text-transform:uppercase;letter-spacing:.4px;}
+.popup-pool{
+  display:flex;flex-wrap:wrap;gap:10px;padding:10px;border-radius:12px;min-height:70px;
+  background:#EFE6CC;border:2px dashed #C9AE72;
+}
+.popup-drop{
+  display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:10px;border-radius:12px;min-height:90px;
+  background:#E4EEFB;border:3px dashed var(--navy);
+}
+.drag-block{
+  display:flex;gap:5px;flex-wrap:nowrap;
+  background:var(--tray);border:3px solid var(--tray-dark);border-radius:10px;
+  padding:6px 7px;cursor:grab;touch-action:none;flex:0 0 auto;
+  box-shadow:0 2px 0 rgba(0,0,0,.12);
+}
+.drag-block.dragging{cursor:grabbing;box-shadow:0 8px 16px rgba(0,0,0,.35);opacity:.95;}
+.drag-block .dot-y{width:22px;height:22px;}
+.popup-drop .drag-block{width:100%;max-width:320px;}
+.popup-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+.popup-feedback{font-family:'Baloo 2',sans-serif;font-weight:800;margin-top:10px;min-height:22px;}
+.popup-feedback.ok{color:var(--green-dark);}
+.popup-feedback.bad{color:var(--coral-dark);}
+
+/* ---------- FOOTER ---------- */
+.credit{
+  text-align:center;padding:12px;font-size:12.5px;color:var(--ink-soft);
+  font-weight:700;background:var(--paper-line);
+}
+
+@media (max-width:600px){
+  .popup-win{left:4vw;width:92vw;top:6%;}
+  .pill-title{padding:9px 20px;}
+  .answer-box{width:62px;height:42px;font-size:19px;}
+}
+</style>
+</head>
+<body>
+
+<span class="leaf l1">🍃</span><span class="leaf l2">🍃</span><span class="leaf l3">🍃</span><span class="leaf l4">🍃</span>
+
+<header class="topbar">
+  <div class="brand">🍎 <span>Phép nhân 6 · 7 · 8 · 9</span> <span class="sub">Toán lớp 3</span></div>
+  <div class="student-info">
+    <span><label for="stNo">STT</label><input id="stNo" type="number" min="0" placeholder="STT"></span>
+    <span><label for="stName">Họ và tên</label><input id="stName" type="text" placeholder="Họ và tên học sinh"></span>
+  </div>
+  <button class="fs-btn" id="fsBtn" title="Toàn màn hình">⛶ Toàn màn hình</button>
+</header>
+
+<nav class="tabs" id="tabs"></nav>
+
+<main class="panels" id="panels"></main>
+
+<footer class="credit">Design by Thầy Phạm Ngọc Đức (Bố Trân Trà) 0961366868</footer>
+
+<!-- Popup đếm trực quan -->
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup-win" id="popupWin">
+    <div class="popup-header" id="popupHeader">
+      <span id="popupTitle">Đếm chấm tròn</span>
+      <button id="popupClose" title="Thoát">✕</button>
+    </div>
+    <div class="popup-body">
+      <p class="popup-problem" id="popupProblem"></p>
+      <div class="popup-zone-label">🧺 Kho chấm — kéo chấm vào khu vực bài giải</div>
+      <div class="popup-pool" id="popupPool"></div>
+      <div class="popup-zone-label">✏️ Khu vực bài giải</div>
+      <div class="popup-drop" id="popupDrop"></div>
+      <div class="popup-actions">
+        <button class="btn btn-primary" id="popupGrade">✔ Chấm điểm</button>
+        <button class="btn btn-secondary" id="popupReset">↺ Làm lại</button>
+        <button class="btn btn-ghost" id="popupExit">🚪 Thoát</button>
+      </div>
+      <p class="popup-feedback" id="popupFeedback"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= SOUND ================= */
+const Sound = {
+  ctx:null,
+  ensure(){ if(!this.ctx){ this.ctx = new (window.AudioContext||window.webkitAudioContext)(); } if(this.ctx.state==='suspended'){this.ctx.resume();} return this.ctx; },
+  tone(freq,dur=0.15,type='sine',gainVal=0.22,delay=0){
+    const ctx=this.ensure();
+    const t0=ctx.currentTime+delay;
+    const osc=ctx.createOscillator(), gain=ctx.createGain();
+    osc.type=type; osc.frequency.value=freq;
+    gain.gain.setValueAtTime(0,t0);
+    gain.gain.linearRampToValueAtTime(gainVal,t0+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001,t0+dur);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t0); osc.stop(t0+dur+0.03);
+  },
+  click(){ this.tone(600,0.07,'square',0.14); },
+  correct(){ this.tone(660,0.12,'sine',0.25,0); this.tone(880,0.18,'sine',0.25,0.12); },
+  wrong(){ this.tone(190,0.28,'sawtooth',0.18); },
+  drop(){ this.tone(430,0.07,'triangle',0.14); },
+  finish(){ this.tone(523,0.15,'sine',0.25,0); this.tone(659,0.15,'sine',0.25,0.15); this.tone(784,0.28,'sine',0.3,0.3); }
+};
+document.addEventListener('pointerdown', ()=>{ Sound.ensure(); }, {once:true});
+
+/* ================= STATE ================= */
+const TABLES = [6,7,8,9];
+const state = {};
+TABLES.forEach(n=>{
+  state[n] = { active:1, values:{}, startTime:null, elapsed:0, completed:false };
+});
+let currentTab = 6;
+
+function fmtTime(ms){
+  const s=Math.max(0,Math.floor(ms/1000));
+  const m=String(Math.floor(s/60)).padStart(2,'0');
+  const ss=String(s%60).padStart(2,'0');
+  return m+':'+ss;
+}
+
+/* ================= BUILD TABS & PANELS ================= */
+const tabsEl = document.getElementById('tabs');
+const panelsEl = document.getElementById('panels');
+
+TABLES.forEach(n=>{
+  const btn = document.createElement('button');
+  btn.className='tab-btn'+(n===currentTab?' active':'');
+  btn.dataset.n=n;
+  btn.innerHTML = `Bảng nhân ${n} <span class="dot-badge"></span>`;
+  btn.addEventListener('click', ()=>switchTab(n));
+  tabsEl.appendChild(btn);
+
+  const panel = document.createElement('section');
+  panel.className='panel'+(n===currentTab?' active':'');
+  panel.dataset.n=n;
+  panel.innerHTML = `
+    <div class="panel-head">
+      <div class="pill-title">BẢNG NHÂN ${n}</div>
+      <div class="timer-chip">⏱ <span class="timer-val" id="timer-${n}">00:00</span></div>
+      <div class="progress-wrap">
+        <div class="progress-track"><div class="progress-fill" id="progress-${n}"></div></div>
+        <div class="progress-label" id="progress-label-${n}">Bước 1/10</div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="card" id="explainer-${n}"></div>
+      <div class="card list-card">
+        <div class="list-title">Bảng nhân ${n}</div>
+        <div id="list-${n}"></div>
+      </div>
+    </div>
+  `;
+  panelsEl.appendChild(panel);
+});
+
+/* ================= TAB SWITCH ================= */
+function switchTab(n){
+  currentTab = n;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', +b.dataset.n===n));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', +p.dataset.n===n));
+  Sound.click();
+  if(state[n].startTime===null && !state[n].completed){
+    state[n].startTime = Date.now();
+  }
+  renderExplainer(n);
+  renderList(n);
+}
+
+/* ================= RENDER: LIST (right) ================= */
+function renderList(n){
+  const st = state[n];
+  const listEl = document.getElementById('list-'+n);
+  let html='';
+  for(let k=1;k<=10;k++){
+    const done = st.values[k]!==undefined;
+    const isCurrent = (k===st.active) && !st.completed;
+    const cls = done ? 'done' : (isCurrent ? 'current' : '');
+    html += `<div class="eq-row-list ${cls}">
+      <span>${n} × ${k} =</span>
+      <span class="val">${done ? st.values[k] : '?'}</span>
+    </div>`;
+    if(k<10){
+      const showArrow = done;
+      html += `<div class="arrow-line ${showArrow?'show':''}">
+        <svg viewBox="0 0 16 12"><path d="M1 2 C6 2, 10 10, 15 10" stroke="#2F5D8A" stroke-width="2" fill="none"/><path d="M11 8 L15 10 L12 12" stroke="#2F5D8A" stroke-width="2" fill="none"/></svg>
+        + ${n}
+      </div>`;
+    }
+  }
+  listEl.innerHTML = html;
+
+  const progress = Math.min(100, ((Object.keys(st.values).length)/10)*100);
+  document.getElementById('progress-'+n).style.width = progress+'%';
+  document.getElementById('progress-label-'+n).textContent = st.completed
+    ? 'Hoàn thành! 🎉'
+    : `Bước ${st.active}/10`;
+
+  const tabBtn = document.querySelector(`.tab-btn[data-n="${n}"]`);
+  if(tabBtn) tabBtn.classList.toggle('done', st.completed);
+}
+
+/* ================= RENDER: EXPLAINER (left) ================= */
+function renderExplainer(n){
+  const st = state[n];
+  const el = document.getElementById('explainer-'+n);
+
+  if(st.completed){
+    el.innerHTML = `
+      <div class="finish-banner">
+        <div class="finish-emojis">🎉⭐🎊🏆🎊⭐🎉</div>
+        <h2>Chúc mừng con đã học xong bảng nhân ${n}!</h2>
+        <div class="finish-time">⏱ Thời gian hoàn thành: ${fmtTime(st.elapsed)}</div>
+        <p style="margin-top:10px;font-weight:700;color:#5B6B82;">Hãy chuyển sang tab khác để tiếp tục luyện tập nhé!</p>
+      </div>`;
+    return;
+  }
+
+  const k = st.active;
+  let trays='';
+  for(let r=0;r<k;r++){
+    let dots='';
+    for(let d=0;d<n;d++) dots += `<span class="dot-y" style="animation-delay:${(r*n+d)*18}ms"></span>`;
+    trays += `<div class="tray" style="animation-delay:${r*90}ms">${dots}</div>`;
+  }
+
+  const sentence = k===1
+    ? `${n} được lấy 1 lần, ta viết:`
+    : `${n} được lấy ${k} lần, ta có:`;
+
+  const sumLine = k>=2
+    ? `${n} × ${k} = ${Array(k).fill(n).join(' + ')} = ?`
+    : '';
+
+  el.innerHTML = `
+    <div class="sentence">${sentence}</div>
+    <div class="trays">${trays}</div>
+    ${sumLine ? `<div class="sum-line">${sumLine}</div>` : ''}
+    <div class="eq-row">
+      <span class="eq-text">${n} × <b>${k}</b> = </span>
+      <input type="number" class="answer-box" id="ans-${n}" inputmode="numeric">
+      <div class="stepper">
+        <button type="button" id="minus-${n}">−</button>
+        <button type="button" id="plus-${n}">+</button>
+      </div>
+    </div>
+    <div class="action-row">
+      <button class="btn btn-primary" id="check-${n}">✔ Kiểm tra</button>
+      <button class="btn btn-secondary" id="count-${n}">🖐 Đếm trực quan</button>
+    </div>
+    <div class="feedback" id="feedback-${n}"></div>
+  `;
+
+  const input = document.getElementById('ans-'+n);
+  input.focus();
+  document.getElementById('minus-'+n).addEventListener('click', ()=>{
+    Sound.click();
+    input.value = Math.max(0, (parseInt(input.value)||0)-1);
+  });
+  document.getElementById('plus-'+n).addEventListener('click', ()=>{
+    Sound.click();
+    input.value = (parseInt(input.value)||0)+1;
+  });
+  document.getElementById('check-'+n).addEventListener('click', ()=>checkAnswer(n));
+  input.addEventListener('keydown', (e)=>{ if(e.key==='Enter') checkAnswer(n); });
+  document.getElementById('count-'+n).addEventListener('click', ()=>openPopup(n));
+}
+
+/* ================= CHECK ANSWER ================= */
+function checkAnswer(n){
+  const st = state[n];
+  const k = st.active;
+  const input = document.getElementById('ans-'+n);
+  const val = parseInt(input.value);
+  const correct = n*k;
+  const fb = document.getElementById('feedback-'+n);
+
+  if(val === correct){
+    Sound.correct();
+    fb.className='feedback ok';
+    fb.textContent = '✔ Đúng rồi! Con giỏi quá! 🎉';
+    st.values[k] = correct;
+    input.disabled = true;
+    document.getElementById('check-'+n).disabled = true;
+    renderList(n);
+    setTimeout(()=>{
+      if(k>=10){
+        st.completed = true;
+        st.elapsed = Date.now() - st.startTime;
+        Sound.finish();
+      } else {
+        st.active = k+1;
+      }
+      renderExplainer(n);
+      renderList(n);
+    }, 750);
+  } else {
+    Sound.wrong();
+    fb.className='feedback bad';
+    fb.textContent = '✘ Chưa đúng, con thử lại nhé!';
+    input.classList.remove('shake');
+    void input.offsetWidth;
+    input.classList.add('shake');
+  }
+}
+
+/* ================= TIMER TICK ================= */
+setInterval(()=>{
+  TABLES.forEach(n=>{
+    const st = state[n];
+    const el = document.getElementById('timer-'+n);
+    if(!el) return;
+    if(st.completed){ el.textContent = fmtTime(st.elapsed); }
+    else if(st.startTime){ el.textContent = fmtTime(Date.now()-st.startTime); }
+  });
+}, 250);
+
+/* ================= POPUP: ĐẾM TRỰC QUAN ================= */
+const popupOverlay = document.getElementById('popupOverlay');
+const popupWin = document.getElementById('popupWin');
+const popupHeader = document.getElementById('popupHeader');
+const popupTitle = document.getElementById('popupTitle');
+const popupProblem = document.getElementById('popupProblem');
+const popupPool = document.getElementById('popupPool');
+const popupDrop = document.getElementById('popupDrop');
+const popupFeedback = document.getElementById('popupFeedback');
+let popupCtx = {n:0,k:0};
+
+function makeBlock(n){
+  const block = document.createElement('div');
+  block.className='drag-block';
+  for(let d=0;d<n;d++){
+    const dot = document.createElement('span');
+    dot.className='dot-y';
+    block.appendChild(dot);
+  }
+  makeDotDraggable(block);
+  return block;
+}
+
+function openPopup(n){
+  const st = state[n];
+  const k = st.active;
+  popupCtx = {n,k};
+  popupTitle.textContent = `Đếm chấm tròn: ${n} × ${k}`;
+  popupProblem.textContent = `${n} × ${k} = ?  (kéo đúng ${k} khối ${n} chấm vào khu vực bài giải, xếp theo hàng dọc)`;
+  popupDrop.innerHTML='';
+  popupPool.innerHTML='';
+  popupFeedback.textContent='';
+  popupFeedback.className='popup-feedback';
+
+  const poolTotal = Math.min(k + 3, 14);
+  for(let i=0;i<poolTotal;i++){
+    popupPool.appendChild(makeBlock(n));
+  }
+
+  popupOverlay.classList.add('show');
+  popupWin.style.top = '8%';
+  popupWin.style.left = '20%';
+  Sound.click();
+}
+
+function closePopup(){ popupOverlay.classList.remove('show'); }
+document.getElementById('popupClose').addEventListener('click', closePopup);
+document.getElementById('popupExit').addEventListener('click', closePopup);
+
+document.getElementById('popupReset').addEventListener('click', ()=>{
+  Sound.click();
+  Array.from(popupDrop.querySelectorAll('.drag-block')).forEach(b=>popupPool.appendChild(b));
+  popupFeedback.textContent='';
+  popupFeedback.className='popup-feedback';
+});
+
+document.getElementById('popupGrade').addEventListener('click', ()=>{
+  const {n,k} = popupCtx;
+  const count = popupDrop.querySelectorAll('.drag-block').length;
+  if(count===k){
+    Sound.correct();
+    popupFeedback.className='popup-feedback ok';
+    popupFeedback.textContent = `✔ Chính xác! ${k} khối × ${n} chấm = ${n*k}.`;
+    const st = state[n];
+    if(st.active===k && document.getElementById('ans-'+n)){
+      document.getElementById('ans-'+n).value = n*k;
+    }
+  } else if(count<k){
+    Sound.wrong();
+    popupFeedback.className='popup-feedback bad';
+    popupFeedback.textContent = `✘ Còn thiếu ${k-count} khối nữa. Kéo thêm vào nhé!`;
+  } else {
+    Sound.wrong();
+    popupFeedback.className='popup-feedback bad';
+    popupFeedback.textContent = `✘ Dư ${count-k} khối. Kéo bớt ra kho nhé!`;
+  }
+});
+
+/* dot dragging (pointer based, works on mouse + touch) */
+function makeDotDraggable(dot){
+  dot.addEventListener('pointerdown', (e)=>{
+    e.preventDefault();
+    Sound.click();
+    const rect = dot.getBoundingClientRect();
+    const offsetX = e.clientX-rect.left, offsetY = e.clientY-rect.top;
+    dot.setPointerCapture(e.pointerId);
+    dot.classList.add('dragging');
+    dot.style.position='fixed';
+    dot.style.left = rect.left+'px';
+    dot.style.top = rect.top+'px';
+    dot.style.width = rect.width+'px';
+    dot.style.height = rect.height+'px';
+    dot.style.zIndex=9999;
+
+    function move(ev){
+      dot.style.left = (ev.clientX-offsetX)+'px';
+      dot.style.top = (ev.clientY-offsetY)+'px';
+    }
+    function up(ev){
+      dot.removeEventListener('pointermove', move);
+      dot.removeEventListener('pointerup', up);
+      dot.classList.remove('dragging');
+      const dropRect = popupDrop.getBoundingClientRect();
+      const cx=ev.clientX, cy=ev.clientY;
+      dot.style.position='';
+      dot.style.left=''; dot.style.top=''; dot.style.width=''; dot.style.height=''; dot.style.zIndex='';
+      if(cx>=dropRect.left && cx<=dropRect.right && cy>=dropRect.top && cy<=dropRect.bottom){
+        popupDrop.appendChild(dot);
+        Sound.drop();
+      } else {
+        popupPool.appendChild(dot);
+      }
+    }
+    dot.addEventListener('pointermove', move);
+    dot.addEventListener('pointerup', up);
+  });
+}
+
+/* popup window drag (move the whole floating window) */
+(function(){
+  let dragging=false, offX=0, offY=0;
+  popupHeader.addEventListener('pointerdown', (e)=>{
+    dragging=true;
+    const rect = popupWin.getBoundingClientRect();
+    offX = e.clientX-rect.left; offY = e.clientY-rect.top;
+    popupHeader.setPointerCapture(e.pointerId);
+  });
+  popupHeader.addEventListener('pointermove', (e)=>{
+    if(!dragging) return;
+    let left = e.clientX-offX, top = e.clientY-offY;
+    left = Math.max(0, Math.min(window.innerWidth-popupWin.offsetWidth, left));
+    top = Math.max(0, Math.min(window.innerHeight-60, top));
+    popupWin.style.left = left+'px';
+    popupWin.style.top = top+'px';
+  });
+  popupHeader.addEventListener('pointerup', ()=>{ dragging=false; });
+})();
+
+/* ================= FULLSCREEN ================= */
+document.getElementById('fsBtn').addEventListener('click', ()=>{
+  Sound.click();
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen().catch(()=>{});
+  } else {
+    document.exitFullscreen();
+  }
+});
+
+/* ================= INIT ================= */
+state[currentTab].startTime = Date.now();
+renderExplainer(currentTab);
+renderList(currentTab);
+</script>
+</body>
+</html>
