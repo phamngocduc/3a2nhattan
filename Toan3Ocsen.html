@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ốc Sên Thi Toán</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #FBF6E8;
+    --bg-2: #F3ECD6;
+    --path-fill: #F6C94B;
+    --path-edge: #E0A62B;
+    --grass-1: #7CAE6F;
+    --grass-2: #4C8656;
+    --stone: #A08165;
+    --stone-dark: #6E5744;
+    --shell: #E08A3C;
+    --shell-swirl: #B75E22;
+    --snail-body: #FCE3C6;
+    --ink: #2E4034;
+    --ink-soft: #5C6E5F;
+    --purple: #8B5FBF;
+    --purple-dark: #6C3FA0;
+    --roof: #4C8C5B;
+    --wall: #E7C48B;
+    --success: #43A05A;
+    --success-dark: #2F7A42;
+    --error: #E3584C;
+    --card: #FFFFFF;
+    --card-edge: #E9DFC4;
+    --sky-1: #FFF7E0;
+    --sky-2: #EAF4E1;
+    --shadow: 0 10px 30px rgba(46,64,52,0.12);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Quicksand',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 15% -10%, var(--sky-1), transparent 60%),
+      radial-gradient(1000px 500px at 100% 0%, var(--sky-2), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:20px 14px 40px;
+  }
+  h1,h2,h3{font-family:'Baloo 2',cursive;margin:0;}
+  .app{width:100%;max-width:960px;}
+
+  /* ---------- HEADER ---------- */
+  .headline{
+    text-align:center;
+    margin-bottom:22px;
+  }
+  .headline .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--purple);color:#fff;
+    font-family:'Baloo 2';font-weight:700;font-size:14px;
+    padding:6px 16px;border-radius:999px;
+    box-shadow:0 4px 0 var(--purple-dark);
+    letter-spacing:.5px;
+  }
+  .headline h1{
+    font-size:clamp(32px,6vw,52px);
+    color:var(--ink);
+    margin-top:12px;
+    text-shadow:3px 3px 0 var(--path-fill);
+  }
+  .headline p{
+    color:var(--ink-soft);font-size:16px;margin-top:8px;font-weight:600;
+  }
+
+  /* ---------- CARD ---------- */
+  .card{
+    background:var(--card);
+    border:2px solid var(--card-edge);
+    border-radius:24px;
+    box-shadow:var(--shadow);
+    padding:28px 26px;
+  }
+  .hidden{display:none !important;}
+
+  /* ---------- SETUP ---------- */
+  .field{margin-bottom:18px;}
+  .field label{
+    display:block;font-family:'Baloo 2';font-weight:600;font-size:15px;
+    color:var(--ink);margin-bottom:6px;
+  }
+  .field input[type=text], .field input[type=number]{
+    width:100%;padding:12px 14px;font-size:16px;font-family:'Quicksand';font-weight:600;
+    border:2px solid var(--card-edge);border-radius:14px;background:var(--bg);
+    color:var(--ink);outline:none;transition:.15s;
+  }
+  .field input:focus{border-color:var(--purple);background:#fff;}
+  .row2{display:grid;grid-template-columns:1fr 2fr;gap:14px;}
+  @media (max-width:520px){.row2{grid-template-columns:1fr;}}
+
+  .presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+  .preset-btn{
+    font-family:'Baloo 2';font-weight:700;font-size:15px;
+    padding:8px 16px;border-radius:12px;border:2px solid var(--card-edge);
+    background:var(--bg);color:var(--ink-soft);cursor:pointer;transition:.15s;
+  }
+  .preset-btn:hover{border-color:var(--purple);color:var(--purple-dark);}
+  .preset-btn.active{background:var(--purple);border-color:var(--purple-dark);color:#fff;box-shadow:0 3px 0 var(--purple-dark);}
+
+  .big-btn{
+    font-family:'Baloo 2';font-weight:700;font-size:19px;
+    color:#fff;background:var(--success);
+    border:none;border-radius:16px;padding:14px 30px;
+    cursor:pointer;box-shadow:0 5px 0 var(--success-dark);
+    transition:transform .08s, box-shadow .08s;
+    width:100%;margin-top:10px;
+  }
+  .big-btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--success-dark);}
+  .error-msg{color:var(--error);font-weight:700;font-size:14px;margin-top:6px;min-height:18px;}
+
+  /* ---------- RACE HEADER ---------- */
+  .race-topbar{
+    display:flex;justify-content:space-between;align-items:center;
+    flex-wrap:wrap;gap:10px;margin-bottom:16px;
+  }
+  .player-chip{
+    font-family:'Baloo 2';font-weight:700;color:var(--ink);
+    background:var(--bg-2);border:2px solid var(--card-edge);
+    padding:8px 16px;border-radius:14px;font-size:15px;
+  }
+  .stat-chip{
+    font-family:'Baloo 2';font-weight:800;font-size:18px;color:#fff;
+    background:var(--purple);padding:8px 18px;border-radius:14px;
+    box-shadow:0 3px 0 var(--purple-dark);
+    display:flex;align-items:center;gap:6px;
+  }
+  .progress-chip{
+    font-family:'Baloo 2';font-weight:800;font-size:15px;color:var(--ink);
+    background:var(--path-fill);padding:8px 16px;border-radius:14px;
+    border:2px solid var(--path-edge);
+  }
+
+  /* ---------- TRACK ---------- */
+  .track-wrap{
+    position:relative;border-radius:20px;overflow-y:auto;overflow-x:hidden;
+    background:linear-gradient(180deg,#DFF0E4 0%, #CDE8C7 55%, #B9DDB2 100%);
+    border:3px solid var(--card-edge);
+    max-height:min(72vh, 640px);
+  }
+  .track-wrap svg{display:block;width:100%;height:auto;max-width:420px;margin:0 auto;}
+  [data-idx]{cursor:pointer;}
+  [data-idx].locked{cursor:not-allowed;opacity:.55;}
+  [data-idx].solved{cursor:default;}
+  .expr-bubble:not(.locked) .bubble-bg{filter:drop-shadow(0 3px 0 rgba(0,0,0,0.15));}
+  .expr-bubble:not(.locked):hover .bubble-bg{fill:#FFF3D0;}
+  .expr-bubble.active .bubble-bg{stroke:var(--success-dark);stroke-width:4;}
+  .answer-node.active path,
+  .answer-node.active rect,
+  .answer-node.active polygon{filter:drop-shadow(0 0 7px rgba(67,160,90,0.85));}
+  .answer-node:hover:not(.locked) .stone-text{fill:#FFF3D0;}
+  .snail-group{transition:none;}
+  @keyframes bob{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-4px);} }
+  .snail-bob{animation:bob 1.6s ease-in-out infinite;}
+  .stone-num-pop{animation:pop .35s ease;}
+  @keyframes pop{0%{transform:scale(0.3);opacity:0;}70%{transform:scale(1.15);}100%{transform:scale(1);opacity:1;}}
+  @keyframes shake{
+    0%,100%{transform:translateX(0);}
+    20%{transform:translateX(-8px);}
+    40%{transform:translateX(8px);}
+    60%{transform:translateX(-6px);}
+    80%{transform:translateX(6px);}
+  }
+  .shake{animation:shake .4s;}
+
+  /* ---------- ANSWER PANEL ---------- */
+  .answer-overlay{
+    position:fixed;inset:0;background:rgba(46,64,52,0.35);
+    display:flex;align-items:center;justify-content:center;z-index:50;
+    padding:16px;
+  }
+  .answer-panel{
+    background:#fff;border-radius:22px;padding:26px 24px;max-width:360px;width:100%;
+    box-shadow:0 20px 50px rgba(0,0,0,0.25);border:3px solid var(--path-edge);
+    text-align:center;
+  }
+  .answer-panel .eq{
+    font-family:'Baloo 2';font-weight:800;font-size:26px;color:var(--ink);margin-bottom:18px;
+  }
+  .answer-panel .eq .qmark{color:var(--purple);}
+  .stepper{
+    display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px;
+  }
+  .stepper button{
+    width:46px;height:46px;border-radius:14px;border:none;
+    background:var(--purple);color:#fff;font-size:22px;font-weight:800;cursor:pointer;
+    box-shadow:0 4px 0 var(--purple-dark);
+  }
+  .stepper button:active{transform:translateY(3px);box-shadow:none;}
+  .stepper input{
+    width:100px;text-align:center;font-family:'Baloo 2';font-weight:800;font-size:28px;
+    border:2px solid var(--card-edge);border-radius:14px;padding:8px 4px;color:var(--ink);
+  }
+  .answer-panel .actions{display:flex;gap:10px;}
+  .answer-panel .btn-check{
+    flex:1;font-family:'Baloo 2';font-weight:700;font-size:17px;color:#fff;
+    background:var(--success);border:none;border-radius:14px;padding:12px;cursor:pointer;
+    box-shadow:0 4px 0 var(--success-dark);
+  }
+  .answer-panel .btn-close{
+    font-family:'Baloo 2';font-weight:700;font-size:17px;color:var(--ink-soft);
+    background:var(--bg-2);border:none;border-radius:14px;padding:12px 16px;cursor:pointer;
+  }
+  .feedback{min-height:22px;font-family:'Baloo 2';font-weight:700;font-size:15px;margin-top:10px;}
+  .feedback.ok{color:var(--success-dark);}
+  .feedback.bad{color:var(--error);}
+
+  /* ---------- VICTORY ---------- */
+  .victory-card{
+    text-align:center;margin-top:20px;
+    background:linear-gradient(180deg,#FFF7DE,#FFF);
+    border:3px solid var(--path-edge);
+  }
+  .victory-card h2{font-size:30px;color:var(--purple-dark);}
+  .victory-time{
+    font-family:'Baloo 2';font-weight:800;font-size:42px;color:var(--success-dark);
+    margin:10px 0 4px;
+  }
+  .confetti-row{font-size:26px;letter-spacing:6px;margin:6px 0 14px;}
+  .btn-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px;}
+  .btn-secondary{
+    font-family:'Baloo 2';font-weight:700;font-size:16px;color:var(--purple-dark);
+    background:#fff;border:2px solid var(--purple);border-radius:14px;padding:12px 22px;cursor:pointer;
+  }
+
+  /* ---------- LEADERBOARD ---------- */
+  .leaderboard{margin-top:26px;}
+  .leaderboard h3{font-size:22px;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);}
+  thead th{
+    background:var(--purple);color:#fff;font-family:'Baloo 2';font-weight:700;
+    padding:12px 10px;text-align:left;font-size:14px;
+  }
+  tbody td{padding:11px 10px;border-bottom:1px solid var(--bg-2);font-weight:600;font-size:15px;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:nth-child(1) td.rank{color:#C9971F;font-weight:800;}
+  tbody tr:nth-child(2) td.rank{color:#8A93A0;font-weight:800;}
+  tbody tr:nth-child(3) td.rank{color:#B0713D;font-weight:800;}
+  .empty-row td{text-align:center;color:var(--ink-soft);font-style:italic;padding:18px;}
+
+  footer{
+    margin-top:34px;text-align:center;font-family:'Baloo 2';font-weight:700;
+    color:var(--ink-soft);font-size:14px;padding-bottom:6px;
+  }
+
+  .table-scroll{width:100%;overflow-x:auto;border-radius:16px;}
+
+  /* ---------- RESPONSIVE: ĐIỆN THOẠI ---------- */
+  @media (max-width:600px){
+    body{padding:14px 8px 30px;}
+    .card{padding:18px 16px;border-radius:18px;}
+    .headline{margin-bottom:16px;}
+    .headline .eyebrow{font-size:12px;padding:5px 12px;}
+    .headline p{font-size:14px;}
+    .row2{gap:10px;}
+    .race-topbar{gap:8px;margin-bottom:12px;}
+    .player-chip,.stat-chip,.progress-chip{font-size:13px;padding:6px 12px;}
+    .track-wrap{border-radius:16px;max-height:min(68vh, 560px);}
+    .answer-panel{padding:20px 16px;border-radius:18px;}
+    .answer-panel .eq{font-size:22px;}
+    .stepper input{width:80px;font-size:24px;}
+    .stepper button{width:42px;height:42px;font-size:19px;}
+    table{font-size:13px;min-width:420px;}
+    thead th{padding:10px 8px;font-size:12px;}
+    tbody td{padding:9px 8px;font-size:13px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="headline">
+    <span class="eyebrow">🐌 CUỘC ĐUA TOÁN HỌC</span>
+    <h1>Ốc Sên Thi Toán</h1>
+    <p>Giải đúng phép tính để giúp ốc sên vượt chướng ngại vật về đến nhà!</p>
+  </div>
+
+  <!-- ===================== SETUP SCREEN ===================== -->
+  <div class="card" id="setupScreen">
+    <h2 style="margin-bottom:18px;color:var(--purple-dark);">📋 Thông tin người chơi</h2>
+    <div class="row2">
+      <div class="field">
+        <label for="inpStt">Số thứ tự</label>
+        <input type="number" id="inpStt" min="1" placeholder="VD: 1">
+      </div>
+      <div class="field">
+        <label for="inpName">Họ và tên học sinh</label>
+        <input type="text" id="inpName" placeholder="VD: Nguyễn Văn A">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Số lượng chướng ngại vật (số câu hỏi)</label>
+      <div class="presets" id="presetRow">
+        <button type="button" class="preset-btn" data-n="3">3</button>
+        <button type="button" class="preset-btn active" data-n="5">5</button>
+        <button type="button" class="preset-btn" data-n="7">7</button>
+        <button type="button" class="preset-btn" data-n="10">10</button>
+      </div>
+      <input type="number" id="inpN" min="2" max="12" value="5" style="margin-top:10px;max-width:140px;">
+    </div>
+
+    <div class="error-msg" id="setupError"></div>
+    <button class="big-btn" id="btnStart">🚀 Bắt đầu đua!</button>
+  </div>
+
+  <!-- ===================== RACE SCREEN ===================== -->
+  <div id="raceScreen" class="hidden">
+    <div class="race-topbar">
+      <div class="player-chip" id="playerChip">STT 1 · Nguyễn Văn A</div>
+      <div class="progress-chip" id="progressChip">Câu 1/5</div>
+      <div class="stat-chip">⏱ <span id="timerDisplay">00:00.0</span></div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="track-wrap" id="trackWrap"></div>
+    </div>
+
+    <div class="card victory-card hidden" id="victoryCard">
+      <h2>🎉 Về đích rồi! 🎉</h2>
+      <div class="confetti-row">🎊 🐌 🎊 🏠 🎊</div>
+      <div style="font-weight:700;color:var(--ink-soft);">Thời gian hoàn thành</div>
+      <div class="victory-time" id="victoryTime">00:00.0</div>
+      <div class="btn-row">
+        <button class="big-btn" style="width:auto;" id="btnPlayAgain">🔁 Chơi lại (học sinh khác)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== LEADERBOARD ===================== -->
+  <div class="leaderboard">
+    <h3>🏆 Bảng thành tích</h3>
+    <div class="table-scroll">
+    <table>
+      <thead>
+        <tr><th style="width:60px;">Hạng</th><th style="width:70px;">STT</th><th>Họ và tên</th><th style="width:130px;">Thời gian</th></tr>
+      </thead>
+      <tbody id="leaderboardBody">
+        <tr class="empty-row"><td colspan="4">Chưa có học sinh nào hoàn thành 🐢</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <footer>Design by Thầy Phạm Ngọc Đức · 0961366868</footer>
+</div>
+
+<!-- ===================== ANSWER OVERLAY (created dynamically) ===================== -->
+
+<script>
+/* ============================================================
+   ÂM THANH (Web Audio API — không cần file mp3)
+   ============================================================ */
+let audioCtx = null;
+function ensureAudio(){
+  if(!audioCtx){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+}
+function tone(freq, dur, delay=0, type='sine', vol=0.22){
+  if(!audioCtx) return;
+  const t0 = audioCtx.currentTime + delay;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, t0);
+  gain.gain.setValueAtTime(0.0001, t0);
+  gain.gain.exponentialRampToValueAtTime(vol, t0 + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(t0);
+  osc.stop(t0 + dur + 0.02);
+}
+function soundClick(){ ensureAudio(); tone(520, 0.08, 0, 'triangle', 0.15); }
+function soundCorrect(){ ensureAudio(); tone(523,0.12,0,'square',0.18); tone(659,0.12,0.09,'square',0.18); tone(784,0.18,0.18,'square',0.2); }
+function soundWrong(){ ensureAudio(); tone(200,0.25,0,'sawtooth',0.18); tone(140,0.3,0.08,'sawtooth',0.16); }
+function soundMove(){ ensureAudio(); tone(380,0.1,0,'sine',0.12); tone(460,0.08,0.05,'sine',0.1); }
+function soundVictory(){
+  ensureAudio();
+  [523,659,784,988,1175].forEach((f,i)=> tone(f, 0.22, i*0.12, 'square', 0.2));
+}
+
+/* ============================================================
+   TIỆN ÍCH
+   ============================================================ */
+function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+/* ============================================================
+   SINH ĐỀ BÀI: chuỗi phép nhân/chia xen kẽ
+   - Nhân: số 1 chữ số x số 1 chữ số
+   - Chia: số 1-2 chữ số : số 1 chữ số (chia hết)
+   ============================================================ */
+function generateProblems(n){
+  let current = randInt(1,9);
+  const start = current;
+  const steps = [];
+  for(let i=0;i<n;i++){
+    const isMul = (i % 2 === 0);
+    if(isMul){
+      let factor = randInt(1,9);
+      if(i === n-1 && Math.random() < 0.2) factor = 0; // đôi khi kết thúc bằng x0 giống mẫu
+      const result = current * factor;
+      steps.push({op:'×', operand:factor, from:current, result});
+      current = result;
+    } else {
+      let divisors = [];
+      for(let d=2; d<=9; d++){
+        if(current !== 0 && current % d === 0) divisors.push(d);
+      }
+      let divisor, result;
+      if(divisors.length > 0){
+        const preferred = divisors.filter(d => Math.floor(current/d) <= 9);
+        const pool = preferred.length > 0 ? preferred : divisors;
+        divisor = pool[randInt(0, pool.length-1)];
+        result = current / divisor;
+      } else if(current === 0){
+        divisor = randInt(2,9);
+        result = 0;
+      } else {
+        divisor = 1;
+        result = current;
+      }
+      steps.push({op:'÷', operand:divisor, from:current, result});
+      current = result;
+    }
+  }
+  return {start, steps};
+}
+
+/* ============================================================
+   TÍNH TOẠ ĐỘ ĐƯỜNG ĐUA (Catmull-Rom -> Bezier mượt)
+   ============================================================ */
+const VB_W = 420;
+const LEFT_X = 110, RIGHT_X = 310, MID_X = (LEFT_X + RIGHT_X) / 2;
+const Y_MARGIN = 80, Y_STEP = 150;
+function trackHeight(n){
+  const total = n + 1;
+  return Y_MARGIN*2 + Y_STEP*(total - 1);
+}
+function computePoints(n){
+  const total = n + 1; // start + (n-1) đá + nhà
+  const points = [];
+  for(let i=0;i<total;i++){
+    let x;
+    if(i === 0 || i === total-1) x = MID_X;
+    else x = (i % 2 === 1) ? LEFT_X : RIGHT_X;
+    points.push({x, y: Y_MARGIN + Y_STEP*i});
+  }
+  return points;
+}
+function computeSegments(points){
+  const segs = [];
+  const n = points.length;
+  for(let i=0;i<n-1;i++){
+    const p0 = points[i===0 ? 0 : i-1];
+    const p1 = points[i];
+    const p2 = points[i+1];
+    const p3 = points[i+2 < n ? i+2 : n-1];
+    const cp1 = {x: p1.x + (p2.x - p0.x)/6, y: p1.y + (p2.y - p0.y)/6};
+    const cp2 = {x: p2.x - (p3.x - p1.x)/6, y: p2.y - (p3.y - p1.y)/6};
+    segs.push({p0:p1, cp1, cp2, p1:p2});
+  }
+  return segs;
+}
+function fullPathD(segs){
+  let d = `M ${segs[0].p0.x},${segs[0].p0.y} `;
+  segs.forEach(s=>{
+    d += `C ${s.cp1.x},${s.cp1.y} ${s.cp2.x},${s.cp2.y} ${s.p1.x},${s.p1.y} `;
+  });
+  return d;
+}
+function segPathD(s){
+  return `M ${s.p0.x},${s.p0.y} C ${s.cp1.x},${s.cp1.y} ${s.cp2.x},${s.cp2.y} ${s.p1.x},${s.p1.y}`;
+}
+function cubicPoint(s, t){
+  const {p0,cp1,cp2,p1} = s;
+  const u = 1-t;
+  const x = u*u*u*p0.x + 3*u*u*t*cp1.x + 3*u*t*t*cp2.x + t*t*t*p1.x;
+  const y = u*u*u*p0.y + 3*u*u*t*cp1.y + 3*u*t*t*cp2.y + t*t*t*p1.y;
+  return {x,y};
+}
+
+/* ============================================================
+   TRẠNG THÁI TRÒ CHƠI
+   ============================================================ */
+let state = {
+  n:5, stt:'', name:'',
+  points:[], segments:[], steps:[],
+  current:0, startTime:0, timerHandle:null, finished:false
+};
+let leaderboardData = []; // {stt, name, seconds}
+
+/* ============================================================
+   SETUP SCREEN
+   ============================================================ */
+const presetRow = document.getElementById('presetRow');
+const inpN = document.getElementById('inpN');
+presetRow.addEventListener('click', e=>{
+  const btn = e.target.closest('.preset-btn');
+  if(!btn) return;
+  soundClick();
+  [...presetRow.children].forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  inpN.value = btn.dataset.n;
+});
+inpN.addEventListener('input', ()=>{
+  [...presetRow.children].forEach(b=>b.classList.toggle('active', b.dataset.n === inpN.value));
+});
+
+document.getElementById('btnStart').addEventListener('click', ()=>{
+  ensureAudio();
+  const stt = document.getElementById('inpStt').value.trim();
+  const name = document.getElementById('inpName').value.trim();
+  const n = parseInt(inpN.value, 10);
+  const errEl = document.getElementById('setupError');
+
+  if(!stt){ errEl.textContent = 'Vui lòng nhập số thứ tự.'; return; }
+  if(!name){ errEl.textContent = 'Vui lòng nhập họ và tên học sinh.'; return; }
+  if(!n || n < 2 || n > 12){ errEl.textContent = 'Số câu hỏi phải từ 2 đến 12.'; return; }
+  errEl.textContent = '';
+
+  state.stt = stt; state.name = name; state.n = n;
+  startRace();
+});
+
+/* ============================================================
+   XÂY DỰNG ĐƯỜNG ĐUA
+   ============================================================ */
+function buildTrack(){
+  const {start, steps} = generateProblems(state.n);
+  state.steps = steps;
+  state.points = computePoints(state.n);
+  state.segments = computeSegments(state.points);
+  state.current = 0;
+  state.startValue = start;
+
+  const VB_H = trackHeight(state.n);
+  const trailD = fullPathD(state.segments);
+  let svg = `<svg viewBox="0 0 ${VB_W} ${VB_H}" xmlns="http://www.w3.org/2000/svg">`;
+
+  // nền cỏ / trang trí
+  svg += `<circle cx="360" cy="34" r="22" fill="#FBDD6B"/>`;
+  svg += `<circle cx="70" cy="30" r="16" fill="#fff" opacity="0.8"/><circle cx="95" cy="26" r="12" fill="#fff" opacity="0.8"/><circle cx="50" cy="24" r="10" fill="#fff" opacity="0.8"/>`;
+
+  // viền đường đua (path dày phía dưới tạo độ nổi)
+  svg += `<path d="${trailD}" fill="none" stroke="${'#D99A20'}" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" opacity="0.55" transform="translate(0,6)"/>`;
+  svg += `<path d="${trailD}" fill="none" stroke="var(--path-fill)" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>`;
+  svg += `<path d="${trailD}" fill="none" stroke="var(--path-edge)" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2 14" opacity="0.5"/>`;
+
+  // các cụm cỏ ngẫu nhiên dọc đường
+  state.points.forEach((p,i)=>{
+    if(i>0 && i<state.points.length-1){
+      svg += `<ellipse cx="${p.x-46}" cy="${p.y+34}" rx="14" ry="7" fill="var(--grass-2)" opacity="0.5"/>`;
+      svg += `<ellipse cx="${p.x+50}" cy="${p.y-30}" rx="12" ry="6" fill="var(--grass-1)" opacity="0.45"/>`;
+    }
+  });
+
+  // điểm bắt đầu (số hiện sẵn)
+  const startP = state.points[0];
+  svg += nodeCircle(startP, String(state.startValue), true, 'start');
+
+  // các viên đá chướng ngại vật (chưa lộ số) — data-idx = chỉ số bước tương ứng
+  for(let i=1;i<state.points.length-1;i++){
+    svg += stoneNode(state.points[i], i-1);
+  }
+
+  // ngôi nhà đích — tương ứng bước cuối cùng
+  const houseP = state.points[state.points.length-1];
+  svg += houseNode(houseP, state.n-1);
+
+  // nhãn biểu thức (expr bubble) trên từng đoạn
+  state.segments.forEach((s,i)=>{
+    svg += exprBubble(s, i, state.steps[i]);
+  });
+
+  // con ốc sên: tách nhóm vị trí (điều khiển bằng JS) và nhóm nhấp nhô (điều khiển bằng CSS)
+  // để tránh xung đột transform khiến ốc sên "biến mất" khi di chuyển
+  svg += `<g id="snailGroup" class="snail-group" transform="translate(${startP.x},${startP.y})">
+            <g id="snailBob" class="snail-bob">${snailSVG()}</g>
+          </g>`;
+
+  svg += `</svg>`;
+  document.getElementById('trackWrap').innerHTML = svg;
+
+  updateBubbleLocks();
+  updateProgressChip();
+}
+
+function nodeCircle(p, label, filled, extraClass){
+  const fill = filled ? 'var(--purple)' : '#fff';
+  const textColor = filled ? '#fff' : 'var(--ink)';
+  return `
+  <g class="${extraClass||''}">
+    <circle cx="${p.x}" cy="${p.y}" r="30" fill="${fill}" stroke="var(--purple-dark)" stroke-width="4"/>
+    <text x="${p.x}" y="${p.y+9}" text-anchor="middle" font-family="Baloo 2" font-weight="800" font-size="22" fill="${textColor}">${label}</text>
+  </g>`;
+}
+
+function stoneNode(p, idx){
+  return `
+  <g class="answer-node locked" data-idx="${idx}">
+    <ellipse cx="${p.x+4}" cy="${p.y+22}" rx="34" ry="10" fill="#4C8C5B" opacity="0.25"/>
+    <path d="M ${p.x-30},${p.y+14}
+             C ${p.x-34},${p.y-14} ${p.x-14},${p.y-30} ${p.x+2},${p.y-28}
+             C ${p.x+22},${p.y-26} ${p.x+34},${p.y-8} ${p.x+30},${p.y+10}
+             C ${p.x+28},${p.y+24} ${p.x+8},${p.y+30} ${p.x-8},${p.y+28}
+             C ${p.x-20},${p.y+26} ${p.x-28},${p.y+22} ${p.x-30},${p.y+14} Z"
+          fill="var(--stone)" stroke="var(--stone-dark)" stroke-width="3"/>
+    <path d="M ${p.x-16},${p.y-6} Q ${p.x},${p.y-14} ${p.x+16},${p.y-2}" stroke="var(--stone-dark)" stroke-width="2" fill="none" opacity="0.4"/>
+    <text class="stone-text" x="${p.x}" y="${p.y+9}" text-anchor="middle" font-family="Baloo 2" font-weight="800" font-size="24" fill="#fff">?</text>
+  </g>`;
+}
+
+function houseNode(p, idx){
+  return `
+  <g class="answer-node locked" data-idx="${idx}">
+    <ellipse cx="${p.x+4}" cy="${p.y+40}" rx="46" ry="10" fill="#4C8C5B" opacity="0.25"/>
+    <rect x="${p.x-30}" y="${p.y-4}" width="60" height="40" rx="4" fill="var(--wall)" stroke="var(--stone-dark)" stroke-width="3"/>
+    <polygon points="${p.x-40},${p.y-4} ${p.x},${p.y-42} ${p.x+40},${p.y-4}" fill="var(--roof)" stroke="var(--stone-dark)" stroke-width="3" stroke-linejoin="round"/>
+    <rect x="${p.x-9}" y="${p.y+14}" width="18" height="22" rx="2" fill="#fff" stroke="var(--stone-dark)" stroke-width="2"/>
+    <text class="stone-text" x="${p.x}" y="${p.y-14}" text-anchor="middle" font-family="Baloo 2" font-weight="800" font-size="20" fill="#fff">?</text>
+  </g>`;
+}
+
+function exprBubble(seg, idx, step){
+  const my = (seg.p0.y + seg.p1.y)/2;
+  const leftMost = Math.min(seg.p0.x, seg.p1.x);
+  const bx = Math.max(leftMost - 58, 40);
+  const label = `${step.op} ${step.operand}`;
+  return `
+  <g class="expr-bubble locked" data-idx="${idx}" transform="translate(${bx},${my})">
+    <rect class="bubble-bg" x="-32" y="-20" width="64" height="38" rx="14" fill="#fff" stroke="var(--path-edge)" stroke-width="3"/>
+    <text class="bubble-text" x="0" y="6" text-anchor="middle" font-family="Baloo 2" font-weight="800" font-size="19" fill="var(--ink)">${label}</text>
+  </g>`;
+}
+
+function snailSVG(){
+  return `
+    <ellipse cx="0" cy="16" rx="26" ry="9" fill="#4C8C5B" opacity="0.25"/>
+    <path d="M -20,10 C -26,-2 -14,-12 -2,-10 C 10,-8 14,2 8,10 C 4,15 -14,16 -20,10 Z" fill="var(--snail-body)" stroke="var(--shell-swirl)" stroke-width="2.5"/>
+    <circle cx="6" cy="-10" r="15" fill="var(--shell)" stroke="var(--shell-swirl)" stroke-width="3"/>
+    <path d="M 6,-10 m -9,0 a 9,9 0 1,0 18,0 a 6,6 0 1,1 -12,0 a 3,3 0 1,0 6,0" fill="none" stroke="var(--shell-swirl)" stroke-width="2"/>
+    <path d="M -18,6 C -24,-2 -24,-10 -20,-14" stroke="var(--snail-body)" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <circle cx="-20" cy="-14" r="3.2" fill="#2E4034"/>
+    <path d="M -12,8 C -17,1 -17,-6 -14,-10" stroke="var(--snail-body)" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <circle cx="-14" cy="-10" r="3" fill="#2E4034"/>
+  `;
+}
+
+/* ============================================================
+   TƯƠNG TÁC: BONG BÓNG BIỂU THỨC + ĐÁ + NGÔI NHÀ
+   Dùng event delegation trên trackWrap để cả 3 loại phần tử
+   (bong bóng phép tính, viên đá, ngôi nhà) đều mở được ô nhập đáp án.
+   ============================================================ */
+document.getElementById('trackWrap').addEventListener('click', (e)=>{
+  const el = e.target.closest('[data-idx]');
+  if(!el) return;
+  const idx = parseInt(el.dataset.idx, 10);
+  if(idx !== state.current) return; // chỉ câu hiện tại mới trả lời được
+  soundClick();
+  openAnswerPanel(idx);
+});
+
+function updateBubbleLocks(){
+  document.querySelectorAll('[data-idx]').forEach(el=>{
+    const idx = parseInt(el.dataset.idx,10);
+    el.classList.remove('locked','active','solved');
+    if(idx < state.current) el.classList.add('solved');
+    else if(idx === state.current) el.classList.add('active');
+    else el.classList.add('locked');
+  });
+}
+function updateProgressChip(){
+  document.getElementById('progressChip').textContent = `Câu ${Math.min(state.current+1,state.n)}/${state.n}`;
+}
+
+/* ============================================================
+   BẢNG NHẬP ĐÁP ÁN
+   ============================================================ */
+let overlayEl = null;
+function openAnswerPanel(idx){
+  const step = state.steps[idx];
+  closeAnswerPanel();
+  overlayEl = document.createElement('div');
+  overlayEl.className = 'answer-overlay';
+  overlayEl.innerHTML = `
+    <div class="answer-panel">
+      <div class="eq">${step.from} ${step.op} ${step.operand} = <span class="qmark">?</span></div>
+      <div class="stepper">
+        <button type="button" id="stepMinus">−</button>
+        <input type="number" id="answerInput" inputmode="numeric" value="0">
+        <button type="button" id="stepPlus">+</button>
+      </div>
+      <div class="actions">
+        <button class="btn-close" id="btnCancel">Đóng</button>
+        <button class="btn-check" id="btnCheck">✔ Kiểm tra</button>
+      </div>
+      <div class="feedback" id="feedbackMsg"></div>
+    </div>`;
+  document.body.appendChild(overlayEl);
+
+  const input = document.getElementById('answerInput');
+  input.focus(); input.select();
+
+  document.getElementById('stepMinus').addEventListener('click', ()=>{
+    soundClick();
+    input.value = Math.max(0, (parseInt(input.value||'0',10) - 1));
+  });
+  document.getElementById('stepPlus').addEventListener('click', ()=>{
+    soundClick();
+    input.value = (parseInt(input.value||'0',10) + 1);
+  });
+  document.getElementById('btnCancel').addEventListener('click', closeAnswerPanel);
+  document.getElementById('btnCheck').addEventListener('click', ()=> checkAnswer(idx));
+  input.addEventListener('keydown', e=>{
+    if(e.key === 'Enter') checkAnswer(idx);
+    if(e.key === 'Escape') closeAnswerPanel();
+  });
+}
+function closeAnswerPanel(){
+  if(overlayEl){ overlayEl.remove(); overlayEl = null; }
+}
+function checkAnswer(idx){
+  const input = document.getElementById('answerInput');
+  const val = parseInt(input.value, 10);
+  const step = state.steps[idx];
+  const fb = document.getElementById('feedbackMsg');
+  if(val === step.result){
+    soundCorrect();
+    fb.textContent = 'Chính xác! 🎉';
+    fb.className = 'feedback ok';
+    setTimeout(()=>{
+      closeAnswerPanel();
+      revealAndMove(idx);
+    }, 400);
+  } else {
+    soundWrong();
+    fb.textContent = 'Chưa đúng, thử lại nhé!';
+    fb.className = 'feedback bad';
+    const panel = overlayEl.querySelector('.answer-panel');
+    panel.classList.remove('shake'); void panel.offsetWidth; panel.classList.add('shake');
+  }
+}
+
+/* ============================================================
+   HIỆU ỨNG: LỘ SỐ ĐÁ + DI CHUYỂN ỐC SÊN
+   ============================================================ */
+function revealAndMove(idx){
+  const stoneG = document.querySelector(`.answer-node[data-idx="${idx}"]`);
+  if(stoneG){
+    const txt = stoneG.querySelector('.stone-text');
+    txt.textContent = state.steps[idx].result;
+    txt.classList.add('stone-num-pop');
+  }
+  animateSnail(idx, ()=>{
+    state.current++;
+    updateBubbleLocks();
+    updateProgressChip();
+    if(state.current >= state.n){
+      finishRace();
+    }
+  });
+}
+function animateSnail(idx, done){
+  soundMove();
+  const seg = state.segments[idx];
+  const snailPos = document.getElementById('snailGroup'); // nhóm vị trí (điều khiển bằng JS)
+  const snailBob = document.getElementById('snailBob');   // nhóm nhấp nhô (điều khiển bằng CSS)
+  snailBob.classList.remove('snail-bob'); // tắt hiệu ứng nhấp nhô trong lúc di chuyển cho mượt
+  const duration = 750;
+  const t0 = performance.now();
+  function frame(now){
+    let t = Math.min(1, (now - t0)/duration);
+    const pt = cubicPoint(seg, t);
+    const pt2 = cubicPoint(seg, Math.min(1,t+0.01));
+    const angle = Math.atan2(pt2.y-pt.y, pt2.x-pt.x) * 180/Math.PI;
+    snailPos.setAttribute('transform', `translate(${pt.x},${pt.y}) rotate(${angle*0.15})`);
+    if(t < 1){
+      requestAnimationFrame(frame);
+    } else {
+      snailBob.classList.add('snail-bob');
+      done();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ============================================================
+   ĐỒNG HỒ THỜI GIAN
+   ============================================================ */
+function startTimer(){
+  state.startTime = performance.now();
+  clearInterval(state.timerHandle);
+  state.timerHandle = setInterval(()=>{
+    const elapsed = (performance.now() - state.startTime)/1000;
+    document.getElementById('timerDisplay').textContent = formatTime(elapsed);
+  }, 100);
+}
+function stopTimer(){
+  clearInterval(state.timerHandle);
+  return (performance.now() - state.startTime)/1000;
+}
+function formatTime(sec){
+  const m = Math.floor(sec/60);
+  const s = (sec - m*60).toFixed(1);
+  return `${String(m).padStart(2,'0')}:${s.padStart(4,'0')}`;
+}
+
+/* ============================================================
+   LUỒNG TRÒ CHƠI
+   ============================================================ */
+function startRace(){
+  document.getElementById('setupScreen').classList.add('hidden');
+  document.getElementById('raceScreen').classList.remove('hidden');
+  document.getElementById('victoryCard').classList.add('hidden');
+  document.getElementById('playerChip').textContent = `STT ${state.stt} · ${state.name}`;
+  buildTrack();
+  startTimer();
+  state.finished = false;
+}
+function finishRace(){
+  state.finished = true;
+  const elapsed = stopTimer();
+  soundVictory();
+  document.getElementById('victoryTime').textContent = formatTime(elapsed);
+  document.getElementById('victoryCard').classList.remove('hidden');
+  leaderboardData.push({stt: state.stt, name: state.name, seconds: elapsed});
+  renderLeaderboard();
+}
+document.getElementById('btnPlayAgain').addEventListener('click', ()=>{
+  soundClick();
+  document.getElementById('raceScreen').classList.add('hidden');
+  document.getElementById('setupScreen').classList.remove('hidden');
+  document.getElementById('setupError').textContent = '';
+  document.getElementById('inpStt').value = '';
+  document.getElementById('inpName').value = '';
+  document.getElementById('inpName').focus();
+});
+
+function renderLeaderboard(){
+  const body = document.getElementById('leaderboardBody');
+  if(leaderboardData.length === 0){
+    body.innerHTML = `<tr class="empty-row"><td colspan="4">Chưa có học sinh nào hoàn thành 🐢</td></tr>`;
+    return;
+  }
+  const sorted = [...leaderboardData].sort((a,b)=> a.seconds - b.seconds);
+  body.innerHTML = sorted.map((r,i)=>`
+    <tr>
+      <td class="rank">${i+1}</td>
+      <td>${r.stt}</td>
+      <td>${escapeHtml(r.name)}</td>
+      <td>${formatTime(r.seconds)}</td>
+    </tr>`).join('');
+}
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+</script>
+</body>
+</html>
