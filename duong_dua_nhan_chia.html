@@ -189,6 +189,25 @@
   }
 
   #startBtnWrap{display:flex;gap:8px;}
+
+  /* ---------- RESPONSIVE (điện thoại / màn hình dọc) ---------- */
+  @media (max-width:640px), (orientation:portrait){
+    #topbar{ padding:6px 10px; gap:6px; }
+    #titleBlock{ gap:7px; }
+    #titleBlock .badge{ width:28px;height:28px;font-size:15px;box-shadow:0 2px 0 #4c33a3; }
+    #titleBlock h1{ font-size:13.5px; line-height:1.1; }
+    #titleBlock .sub{ font-size:9.5px; }
+    #statusBar{ font-size:11px; gap:6px; }
+    #statusBar .pill{ padding:3px 9px; border-width:1.6px; gap:4px; }
+    #startBtnWrap .btn{ padding:6px 10px; font-size:14px; }
+    .card{ padding:20px 16px; width:min(340px,90vw); }
+    .card h2{ font-size:19px; }
+    .card p.tag{ font-size:12px; }
+    #eqDisplay{ font-size:24px; margin:4px 0 14px; }
+    #answerInput{ width:76px; font-size:22px; padding:6px; }
+    .spin-btn{ width:42px;height:42px;font-size:20px; }
+    #footerSig{ font-size:9.5px; padding:2px 8px; bottom:4px; right:8px; }
+  }
 </style>
 </head>
 <body>
@@ -286,6 +305,47 @@ function tone(freq, start, dur, type='sine', gainVal=0.18){
 }
 function playTing(){ tone(880,0,0.12,'sine',0.2); tone(1318.5,0.09,0.18,'sine',0.18); }
 function playTeng(){ tone(220,0,0.16,'sawtooth',0.15); tone(160,0.1,0.22,'sawtooth',0.15); }
+function playEngineSound(duration=0.9){
+  // Âm thanh động cơ ô tô "zỉn zỉn" khi xe chạy: sóng răng cưa trầm + điều biến biên độ nhanh
+  const ctx = ac();
+  const now = ctx.currentTime;
+
+  const carrier = ctx.createOscillator();
+  carrier.type = 'sawtooth';
+  carrier.frequency.setValueAtTime(72, now);
+  carrier.frequency.linearRampToValueAtTime(100, now + duration*0.45);
+  carrier.frequency.linearRampToValueAtTime(75, now + duration);
+
+  const sub = ctx.createOscillator();
+  sub.type = 'square';
+  sub.frequency.setValueAtTime(36, now);
+  sub.frequency.linearRampToValueAtTime(50, now + duration*0.45);
+  sub.frequency.linearRampToValueAtTime(38, now + duration);
+
+  // LFO tạo hiệu ứng rung "zỉn zỉn" đều đặn khi động cơ chạy
+  const lfo = ctx.createOscillator();
+  lfo.type = 'square';
+  lfo.frequency.value = 22;
+  const lfoGain = ctx.createGain();
+  lfoGain.gain.value = 0.09;
+
+  const mainGain = ctx.createGain();
+  mainGain.gain.setValueAtTime(0.0001, now);
+  mainGain.gain.exponentialRampToValueAtTime(0.13, now + 0.06);
+  mainGain.gain.setValueAtTime(0.13, now + duration - 0.14);
+  mainGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+  lfo.connect(lfoGain);
+  lfoGain.connect(mainGain.gain);
+  carrier.connect(mainGain);
+  sub.connect(mainGain);
+  mainGain.connect(ctx.destination);
+
+  carrier.start(now); sub.start(now); lfo.start(now);
+  carrier.stop(now + duration + 0.05);
+  sub.stop(now + duration + 0.05);
+  lfo.stop(now + duration + 0.05);
+}
 function playClap(){
   const ctx = ac();
   for(let i=0;i<14;i++){
@@ -333,17 +393,83 @@ function generateProblems(){
   return types.map(t => t==='mult'? genMult(): genDiv());
 }
 
-/* ============ ROAD LAYOUT ============ */
-// 12 stop coordinates along the winding road (matches visual S-curve)
-const STOPS = [
-  {x:200,y:110},{x:400,y:110},{x:600,y:110},{x:800,y:110},
-  {x:800,y:290},{x:600,y:290},{x:400,y:290},{x:200,y:290},
-  {x:250,y:470},{x:450,y:470},{x:650,y:470},{x:850,y:470}
-];
-const START_POS = {x:50,y:110};
-const FINISH_POS = {x:950,y:470};
+/* ============ ROAD LAYOUT (2 chế độ: ngang cho máy tính / dọc cho điện thoại) ============ */
+function buildRoundedPath(points, radius){
+  // Tự động vẽ đường nối các điểm với góc bo tròn (dùng cho chế độ dọc)
+  let d = `M${points[0].x},${points[0].y}`;
+  for(let i=1;i<points.length-1;i++){
+    const p0=points[i-1], p1=points[i], p2=points[i+1];
+    const v1={x:p0.x-p1.x,y:p0.y-p1.y}, len1=Math.hypot(v1.x,v1.y)||1;
+    const u1={x:v1.x/len1,y:v1.y/len1};
+    const v2={x:p2.x-p1.x,y:p2.y-p1.y}, len2=Math.hypot(v2.x,v2.y)||1;
+    const u2={x:v2.x/len2,y:v2.y/len2};
+    const r=Math.min(radius,len1/2,len2/2);
+    const a={x:p1.x+u1.x*r,y:p1.y+u1.y*r}, b={x:p1.x+u2.x*r,y:p1.y+u2.y*r};
+    d += ` L${a.x},${a.y} Q${p1.x},${p1.y} ${b.x},${b.y}`;
+  }
+  d += ` L${points[points.length-1].x},${points[points.length-1].y}`;
+  return d;
+}
 
-const ROAD_PATH = "M50,110 L850,110 Q900,110 900,160 L900,240 Q900,290 850,290 L150,290 Q100,290 100,340 L100,420 Q100,470 150,470 L950,470";
+// ---- Chế độ NGANG (máy tính / máy tính bảng ngang) ----
+const LANDSCAPE_CONFIG = {
+  viewBox: '0 0 1000 560',
+  rowSize: 4,
+  STOPS: [
+    {x:200,y:110},{x:400,y:110},{x:600,y:110},{x:800,y:110},
+    {x:800,y:290},{x:600,y:290},{x:400,y:290},{x:200,y:290},
+    {x:250,y:470},{x:450,y:470},{x:650,y:470},{x:850,y:470}
+  ],
+  START_POS: {x:50,y:110},
+  FINISH_POS: {x:950,y:470},
+  ROAD_PATH: "M50,110 L850,110 Q900,110 900,160 L900,240 Q900,290 850,290 L150,290 Q100,290 100,340 L100,420 Q100,470 150,470 L950,470",
+  decor: {
+    sun:{cx:930,cy:55,r:34},
+    clouds:[[120,50],[520,40],[780,40]],
+    trees:[[40,60,0.9],[500,55,0.8],[920,150,0.9],[60,250,0.9],[940,410,0.8],[60,530,0.9],[900,530,0.9],[320,430,0.7]],
+    rocks:[[95,390,1],[850,505,0.8]],
+    houses:[[880,60,0.9],[65,330,0.9]],
+    pond:[500,195]
+  }
+};
+
+// ---- Chế độ DỌC (điện thoại di động) ----
+const PORTRAIT_STOPS = [
+  {x:140,y:150},{x:420,y:150},
+  {x:420,y:320},{x:140,y:320},
+  {x:140,y:490},{x:420,y:490},
+  {x:420,y:660},{x:140,y:660},
+  {x:140,y:830},{x:420,y:830},
+  {x:420,y:1000},{x:140,y:1000}
+];
+const PORTRAIT_START = {x:280,y:60};
+const PORTRAIT_FINISH = {x:280,y:1090};
+const PORTRAIT_CONFIG = {
+  viewBox: '0 0 560 1160',
+  rowSize: 2,
+  STOPS: PORTRAIT_STOPS,
+  START_POS: PORTRAIT_START,
+  FINISH_POS: PORTRAIT_FINISH,
+  ROAD_PATH: buildRoundedPath([PORTRAIT_START, ...PORTRAIT_STOPS, PORTRAIT_FINISH], 46),
+  decor: {
+    sun:{cx:490,cy:75,r:30},
+    clouds:[[90,70],[470,270],[90,540],[470,780],[90,1040]],
+    trees:[[45,110,0.85],[45,360,0.85],[45,610,0.85],[45,860,0.85],[45,1110,0.85],
+           [515,210,0.85],[515,460,0.85],[515,710,0.85],[515,960,0.85]],
+    rocks:[[280,235,0.9],[280,575,0.9],[280,915,0.9]],
+    houses:[[495,1055,0.85]],
+    pond:[280,405]
+  }
+};
+
+function getMode(){
+  return (window.innerWidth < window.innerHeight) ? 'portrait' : 'landscape';
+}
+function getConfig(mode){
+  return mode === 'portrait' ? PORTRAIT_CONFIG : LANDSCAPE_CONFIG;
+}
+let currentMode = getMode();
+let gameStarted = false;
 
 function svgEl(tag, attrs){
   const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
@@ -405,16 +531,21 @@ function carSVG(color1,color2,flip=false){
 
 let svg, playerCarG, problems=[], currentIndex=0, timerInterval=null, startTime=null, elapsedFrozen=null;
 
-function buildRoad(){
+function buildRoad(mode){
+  currentMode = mode || getMode();
+  const cfg = getConfig(currentMode);
+  const STOPS = cfg.STOPS, START_POS = cfg.START_POS, FINISH_POS = cfg.FINISH_POS, ROAD_PATH = cfg.ROAD_PATH;
+
   svg = document.getElementById('roadSvg');
+  svg.setAttribute('viewBox', cfg.viewBox);
   svg.innerHTML = '';
 
   // sun
-  svg.appendChild(svgEl('circle',{cx:930,cy:55,r:34,fill:'#ffe08a'}));
-  svg.appendChild(svgEl('circle',{cx:930,cy:55,r:24,fill:'#ffd166'}));
+  svg.appendChild(svgEl('circle',{cx:cfg.decor.sun.cx,cy:cfg.decor.sun.cy,r:cfg.decor.sun.r,fill:'#ffe08a'}));
+  svg.appendChild(svgEl('circle',{cx:cfg.decor.sun.cx,cy:cfg.decor.sun.cy,r:cfg.decor.sun.r*0.7,fill:'#ffd166'}));
 
   // clouds
-  [[120,50],[520,40],[780,40]].forEach(([cx,cy])=>{
+  cfg.decor.clouds.forEach(([cx,cy])=>{
     const c = svgEl('g',{opacity:0.9});
     c.appendChild(svgEl('ellipse',{cx:cx,cy:cy,rx:26,ry:14,fill:'#ffffff'}));
     c.appendChild(svgEl('ellipse',{cx:cx+20,cy:cy+4,rx:20,ry:11,fill:'#ffffff'}));
@@ -428,23 +559,10 @@ function buildRoad(){
   svg.appendChild(svgEl('path',{d:ROAD_PATH, fill:'none', stroke:'#ffffff', ['stroke-width']:3, ['stroke-dasharray']:'14 12', ['stroke-linecap']:'round', opacity:0.85}));
 
   // decorations
-  svg.appendChild(tree(40,60,0.9));
-  svg.appendChild(tree(500,55,0.8));
-  svg.appendChild(tree(920,150,0.9));
-  svg.appendChild(tree(60,250,0.9));
-  svg.appendChild(tree(940,410,0.8));
-  svg.appendChild(tree(60,530,0.9));
-  svg.appendChild(tree(900,530,0.9));
-  svg.appendChild(tree(320,430,0.7));
-
-  svg.appendChild(rock(895,205,1));
-  svg.appendChild(rock(95,390,1));
-  svg.appendChild(rock(850,505,0.8));
-
-  svg.appendChild(houseWithMill(880,60,0.9));
-  svg.appendChild(houseWithMill(65,330,0.9));
-
-  svg.appendChild(pond(500,195));
+  cfg.decor.trees.forEach(([x,y,s])=> svg.appendChild(tree(x,y,s)));
+  cfg.decor.rocks.forEach(([x,y,s])=> svg.appendChild(rock(x,y,s)));
+  cfg.decor.houses.forEach(([x,y,s])=> svg.appendChild(houseWithMill(x,y,s)));
+  svg.appendChild(pond(cfg.decor.pond[0], cfg.decor.pond[1]));
 
   // start car (decorative, checkered start)
   const startCar = carSVG('#ef4444','#f59e0b');
@@ -497,7 +615,8 @@ function renderProblemsOnBoxes(){
 }
 
 function refreshBoxStates(){
-  STOPS.forEach((pt,i)=>{
+  const cfg = getConfig(currentMode);
+  cfg.STOPS.forEach((pt,i)=>{
     const g = document.getElementById(`qbox-${i}`);
     g.classList.remove('locked','current','done');
     if(i < currentIndex) g.classList.add('done');
@@ -547,7 +666,8 @@ document.getElementById('startGameBtn').addEventListener('click', ()=>{
   problems = generateProblems();
   renderProblemsOnBoxes();
   refreshBoxStates();
-  movePlayerCar(START_POS,false);
+  gameStarted = true;
+  movePlayerCar(getConfig(currentMode).START_POS,false);
   startTimer();
 });
 
@@ -589,15 +709,17 @@ function submitAnswer(){
     markDone(i);
     currentIndex++;
     refreshBoxStates();
-    const flip = STOPS.length>0 && (i>=4 && i<=7); // moving right-to-left row uses flipped car
-    if(currentIndex < STOPS.length){
-      movePlayerCar(STOPS[currentIndex], currentIndex>=4 && currentIndex<=7);
+    const cfg = getConfig(currentMode);
+    playEngineSound(0.9); // âm thanh động cơ ô tô "zỉn zỉn" khi xe chạy tới ô tiếp theo
+    const flip = Math.floor(currentIndex/cfg.rowSize) % 2 === 1; // hàng chạy ngược chiều thì lật xe
+    if(currentIndex < cfg.STOPS.length){
+      movePlayerCar(cfg.STOPS[currentIndex], flip);
     } else {
-      movePlayerCar(FINISH_POS,false);
+      movePlayerCar(cfg.FINISH_POS,false);
     }
     setTimeout(()=>{
       document.getElementById('answerModal').style.display='none';
-      if(currentIndex >= STOPS.length){
+      if(currentIndex >= cfg.STOPS.length){
         finishGame();
       }
     }, 500);
@@ -631,6 +753,7 @@ function spawnConfetti(){
 
 function finishGame(){
   stopTimer();
+  gameStarted = false;
   playClap();
   spawnConfetti();
   document.getElementById('finishName').textContent = `Bạn ${studentSTT}. ${studentName}`;
@@ -646,7 +769,10 @@ document.getElementById('replayBtn').addEventListener('click', ()=>{
   document.getElementById('namePill').textContent = '👤 Chưa nhập tên';
   document.getElementById('timerPill').textContent = '⏱ 00:00';
   document.getElementById('progressPill').textContent = '🚗 0/12';
-  buildRoad();
+  gameStarted = false;
+  currentIndex = 0;
+  problems = [];
+  buildRoad(currentMode);
 });
 
 document.getElementById('fullscreenBtn').addEventListener('click', ()=>{
@@ -657,7 +783,49 @@ document.getElementById('fullscreenBtn').addEventListener('click', ()=>{
   }
 });
 
-buildRoad();
+/* ============ RESPONSIVE: chuyển ngang <-> dọc khi đổi kích thước / xoay màn hình ============ */
+function handleOrientationChange(){
+  const newMode = getMode();
+  if(newMode === currentMode) return;
+
+  const savedProblems = problems;
+  const savedIndex = currentIndex;
+  const wasStarted = gameStarted;
+
+  buildRoad(newMode);
+
+  if(savedProblems && savedProblems.length){
+    problems = savedProblems;
+    currentIndex = savedIndex;
+    renderProblemsOnBoxes();
+    refreshBoxStates();
+    for(let k=0;k<currentIndex;k++) markDone(k);
+
+    const cfg = getConfig(currentMode);
+    const target = currentIndex < cfg.STOPS.length ? cfg.STOPS[currentIndex] : cfg.FINISH_POS;
+    const flip = currentIndex < cfg.STOPS.length && Math.floor(currentIndex/cfg.rowSize) % 2 === 1;
+
+    if(wasStarted){
+      // đặt lại vị trí xe ngay lập tức, không cần hiệu ứng trượt khi vừa đổi bố cục
+      const prevTransition = playerCarG.style.transition;
+      playerCarG.style.transition = 'none';
+      movePlayerCar(target, flip);
+      requestAnimationFrame(()=>{ playerCarG.style.transition = prevTransition; });
+    }
+  }
+}
+
+let resizeDebounce = null;
+window.addEventListener('resize', ()=>{
+  clearTimeout(resizeDebounce);
+  resizeDebounce = setTimeout(handleOrientationChange, 200);
+});
+window.addEventListener('orientationchange', ()=>{
+  clearTimeout(resizeDebounce);
+  resizeDebounce = setTimeout(handleOrientationChange, 250);
+});
+
+buildRoad(currentMode);
 </script>
 </body>
 </html>
