@@ -607,7 +607,7 @@ function moveCharacterTo(lane){
   if(!state.running) return;
   if(lane === state.charLane) return;
   state.charLane = lane;
-  state.advancePx = 0; // switching lanes always returns the character to the start line
+  //state.advancePx = 0; // switching lanes always returns the character to the start line
   positionCharacterHorizontal();
   positionCharacterVertical();
   bumpWalk();
