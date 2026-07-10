@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Đua Phép Nhân - Vượt Chướng Ngại</title>
+<style>
+  :root{
+    --lane-gray:#8a8f98;
+    --lane-gray-dark:#767b84;
+    --accent:#ffcf3f;
+    --panel:#1b2430;
+    --panel2:#232f3f;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:linear-gradient(180deg,#0d1520 0%, #1a2740 60%, #223354 100%);
+    font-family:'Segoe UI', 'Arial', sans-serif;
+    color:#fff;
+    overflow-x:hidden;
+    display:flex; flex-direction:column; align-items:center;
+    min-height:100vh;
+    touch-action:manipulation;
+  }
+  .app{
+    width:100%; max-width:460px; display:flex; flex-direction:column;
+    min-height:100vh; padding:10px; position:relative;
+  }
+  h1.title{
+    text-align:center; font-size:1.4em; margin:8px 0 4px;
+    background:linear-gradient(90deg,#ffcf3f,#ff8a3d);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 2px 8px rgba(0,0,0,0.3);
+    letter-spacing:0.5px;
+  }
+  /* ===== SETUP SCREEN ===== */
+  .screen{ display:none; flex-direction:column; flex:1; }
+  .screen.active{ display:flex; }
+  .card{
+    background:var(--panel); border-radius:16px; padding:22px 18px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
+    margin-top:10px;
+  }
+  .card h2{ margin:0 0 14px; text-align:center; color:var(--accent); font-size:1.15em;}
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:0.9em; margin-bottom:6px; color:#c9d3e0;}
+  .field input{
+    width:100%; padding:12px 14px; border-radius:10px; border:none;
+    background:#0f1622; color:#fff; font-size:1.05em; outline:2px solid transparent;
+    transition:outline 0.2s;
+  }
+  .field input:focus{ outline:2px solid var(--accent); }
+  .btn{
+    display:block; width:100%; padding:14px; border:none; border-radius:12px;
+    background:linear-gradient(180deg,#ffd84d,#ff9d3d); color:#2b1a00;
+    font-size:1.1em; font-weight:700; cursor:pointer; margin-top:6px;
+    box-shadow:0 6px 0 #b5660b, 0 10px 20px rgba(0,0,0,0.35);
+    transition:transform 0.06s;
+  }
+  .btn:active{ transform:translateY(4px); box-shadow:0 2px 0 #b5660b; }
+  .btn.secondary{
+    background:linear-gradient(180deg,#4fc3f7,#0288d1); color:#fff;
+    box-shadow:0 6px 0 #01507a, 0 10px 20px rgba(0,0,0,0.35);
+  }
+  .rules{ font-size:0.8em; color:#9fb0c7; line-height:1.5; margin-top:14px; }
+  .rules b{ color:#ffcf3f; }
+
+  /* ===== GAME SCREEN ===== */
+  #gameScreen{ align-items:center; }
+  .hud{
+    width:100%; display:flex; justify-content:space-between; align-items:center;
+    background:var(--panel2); border-radius:12px; padding:8px 12px; margin-bottom:8px;
+    font-size:0.8em; gap:6px; flex-wrap:wrap;
+  }
+  .hud .hbox{ text-align:center; min-width:56px; }
+  .hud .hlabel{ font-size:0.72em; color:#9fb0c7; }
+  .hud .hval{ font-size:1.15em; font-weight:700; color:var(--accent); }
+  #timeVal.warn{ color:#ff5b5b; }
+  .canvasWrap{
+    position:relative; width:100%; aspect-ratio: 380 / 680;
+    border-radius:14px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.5);
+    border:3px solid #0f1622; background:#2f333a;
+  }
+  #gameCanvas{ width:100%; height:100%; display:block; cursor:pointer; }
+  .overlayMsg{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    flex-direction:column; background:rgba(10,15,25,0.72); z-index:5; text-align:center;
+    padding:20px; opacity:0; pointer-events:none; transition:opacity 0.3s;
+  }
+  .overlayMsg.show{ opacity:1; pointer-events:all; }
+  .overlayMsg .big{ font-size:2.4em; font-weight:800; color:var(--accent); text-shadow:0 4px 10px rgba(0,0,0,0.6); }
+  .overlayMsg .sub{ font-size:1.1em; margin-top:8px; color:#fff; }
+  .hint{ font-size:0.78em; color:#9fb0c7; text-align:center; margin-top:8px; }
+
+  /* ===== END SCREEN ===== */
+  #endScreen .card{ text-align:center; }
+  #endScreen .emoji{ font-size:3em; }
+  #endScreen .studentName{ font-size:1.5em; font-weight:800; color:var(--accent); margin:8px 0;}
+  .statRow{ display:flex; justify-content:space-between; padding:10px 14px; background:#0f1622; border-radius:10px; margin-bottom:8px; }
+  .statRow span:first-child{ color:#9fb0c7; }
+  .statRow span:last-child{ font-weight:700; color:#fff; }
+  .medal{ font-size:1.1em; margin-top:10px; color:#ffd84d; font-weight:700; }
+
+  footer{
+    text-align:center; font-size:0.72em; color:#6f7f96; padding:14px 6px 6px;
+    letter-spacing:0.2px;
+  }
+  footer b{ color:#9fb0c7; }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1 class="title">🏃 ĐUA PHÉP NHÂN VƯỢT CHƯỚNG NGẠI 🏃</h1>
+
+  <!-- SETUP SCREEN -->
+  <div class="screen active" id="setupScreen">
+    <div class="card">
+      <h2>Thông tin học sinh</h2>
+      <div class="field">
+        <label>Số thứ tự</label>
+        <input type="number" id="inputSTT" placeholder="VD: 12" min="1">
+      </div>
+      <div class="field">
+        <label>Tên học sinh</label>
+        <input type="text" id="inputName" placeholder="VD: Nguyễn Văn A">
+      </div>
+      <button class="btn" id="startBtn">▶ BẮT ĐẦU CHƠI</button>
+      <div class="rules">
+        <b>Cách chơi:</b> Bấm/chạm vào đường đua bên cạnh để nhân vật di chuyển ngang.
+        Bấm phía <b>trước đầu</b> nhân vật để tiến lên đón phép tính, bấm phía <b>sau</b> để lùi lại.
+        Hãy hứng đúng phép nhân có kết quả nhỏ hơn số quy định của từng Level!
+        Hứng đúng: <b>+1 điểm</b>. Hứng sai: <b>-0.5 điểm</b>. Có 5 Level, mỗi Level 40 giây.
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div class="screen" id="gameScreen">
+    <div class="hud">
+      <div class="hbox"><div class="hlabel">HS</div><div class="hval" id="hudName">-</div></div>
+      <div class="hbox"><div class="hlabel">STT</div><div class="hval" id="hudSTT">-</div></div>
+      <div class="hbox"><div class="hlabel">LEVEL</div><div class="hval" id="hudLevel">1</div></div>
+      <div class="hbox"><div class="hlabel">THỜI GIAN</div><div class="hval" id="timeVal">40</div></div>
+      <div class="hbox"><div class="hlabel">ĐIỂM</div><div class="hval" id="hudScore">0</div></div>
+    </div>
+    <div class="canvasWrap" id="canvasWrap">
+      <canvas id="gameCanvas"></canvas>
+      <div class="overlayMsg" id="levelOverlay">
+        <div class="big" id="levelOverlayBig">Level 1</div>
+        <div class="sub" id="levelOverlaySub">Hứng kết quả nhỏ hơn 30</div>
+      </div>
+    </div>
+    <div class="hint">Chạm vào đường đua để di chuyển • Chạm phía trước/sau để tiến/lùi</div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div class="screen" id="endScreen">
+    <div class="card">
+      <div class="emoji">🎉🏆🎉</div>
+      <div>Chúc mừng</div>
+      <div class="studentName" id="endName">Học sinh</div>
+      <div class="statRow"><span>Số thứ tự</span><span id="endSTT">-</span></div>
+      <div class="statRow"><span>Tổng điểm</span><span id="endScore">0</span></div>
+      <div class="statRow"><span>Tổng thời gian</span><span id="endTime">3:20</span></div>
+      <div class="medal" id="endMedal">Xuất sắc!</div>
+      <button class="btn secondary" id="restartBtn">🔁 CHƠI LẠI</button>
+    </div>
+  </div>
+
+  <footer>Design by <b>Thầy Phạm Ngọc Đức (Bố Trân Trà)</b> · 0961366868</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- DOM ----------
+  const setupScreen = document.getElementById('setupScreen');
+  const gameScreen = document.getElementById('gameScreen');
+  const endScreen = document.getElementById('endScreen');
+  const inputSTT = document.getElementById('inputSTT');
+  const inputName = document.getElementById('inputName');
+  const startBtn = document.getElementById('startBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const hudName = document.getElementById('hudName');
+  const hudSTT = document.getElementById('hudSTT');
+  const hudLevel = document.getElementById('hudLevel');
+  const timeVal = document.getElementById('timeVal');
+  const hudScore = document.getElementById('hudScore');
+  const levelOverlay = document.getElementById('levelOverlay');
+  const levelOverlayBig = document.getElementById('levelOverlayBig');
+  const levelOverlaySub = document.getElementById('levelOverlaySub');
+  const endName = document.getElementById('endName');
+  const endSTT = document.getElementById('endSTT');
+  const endScore = document.getElementById('endScore');
+  const endTime = document.getElementById('endTime');
+  const endMedal = document.getElementById('endMedal');
+
+  // ---------- Logical resolution ----------
+  const W = 380, H = 680;
+  canvas.width = W; canvas.height = H;
+
+  const LANES = 4;
+  const laneW = W / LANES;
+  const startLineY = H - 70;
+  const topLimit = 90;
+
+  // ---------- Audio (Web Audio API synth, no external files) ----------
+  let actx = null;
+  function ensureAudio(){ if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } }
+  function beep(freq, dur, type, vol, delay){
+    if(!actx) return;
+    delay = delay || 0;
+    const t0 = actx.currentTime + delay;
+    const osc = actx.createOscillator();
+    const gain = actx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.setValueAtTime(freq, t0);
+    gain.gain.setValueAtTime(0, t0);
+    gain.gain.linearRampToValueAtTime(vol||0.25, t0+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, t0+dur);
+    osc.connect(gain); gain.connect(actx.destination);
+    osc.start(t0); osc.stop(t0+dur+0.02);
+  }
+  function sndCorrect(){ beep(660,0.12,'triangle',0.3); beep(880,0.14,'triangle',0.28,0.08); }
+  function sndWrong(){ beep(180,0.25,'sawtooth',0.25); }
+  function sndVanish(){ beep(300,0.06,'sine',0.06); }
+  function sndLevelUp(){ [523,659,784,1046].forEach((f,i)=>beep(f,0.18,'triangle',0.3,i*0.12)); }
+  function sndGameOver(){ [784,659,523,392,523,659,784,1046].forEach((f,i)=>beep(f,0.2,'triangle',0.28,i*0.11)); }
+  function sndMove(){ beep(440,0.05,'square',0.08); }
+
+  // ---------- Level config ----------
+  const LEVELS = [
+    {n:1, threshold:30, speed:70},
+    {n:2, threshold:40, speed:85},
+    {n:3, threshold:50, speed:100},
+    {n:4, threshold:60, speed:115},
+    {n:5, threshold:70, speed:130},
+  ];
+  const LEVEL_DURATION = 40; // seconds
+
+  // ---------- Game state ----------
+  let student = {stt:'', name:''};
+  let state = 'setup'; // setup | levelIntro | playing | ended
+  let levelIndex = 0;
+  let levelTimeLeft = LEVEL_DURATION;
+  let score = 0;
+  let problems = []; // {lane, y, a, b, result, id}
+  let pendingSpawns = []; // {lane, delay, a, b, result} - chờ tới lượt rơi (so le)
+  let roundTimer = 0;
+  let problemId = 0;
+  let floaters = []; // floating score texts {x,y,text,color,life}
+  let vanishFx = []; // {x,y,life}
+  let character = { lane:0, x:0, y:startLineY, targetX:0, animT:0 };
+  let lastTs = 0;
+  let rafId = null;
+
+  function resetGame(){
+    levelIndex = 0;
+    score = 0;
+    problems = [];
+    floaters = [];
+    vanishFx = [];
+    pendingSpawns = [];
+    roundTimer = 0;
+    character.lane = 1;
+    character.x = character.lane*laneW + laneW/2;
+    character.targetX = character.x;
+    character.y = startLineY;
+    levelTimeLeft = LEVEL_DURATION;
+  }
+
+  function currentLevel(){ return LEVELS[levelIndex]; }
+
+  function fmtScore(s){
+    return (Math.round(s*10)/10).toFixed(1).replace(/\.0$/, s%1===0? '.0':'.0');
+  }
+  function fmtScoreDisplay(s){
+    let v = Math.round(s*10)/10;
+    return (v % 1 === 0) ? v.toFixed(0) : v.toFixed(1);
+  }
+
+  // ---------- Spawn ----------
+  function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+
+  function spawnProblem(lane, a, b, result){
+    problems.push({
+      id: problemId++,
+      lane: lane,
+      y: -30,
+      a:a, b:b, result:result,
+      caught:false
+    });
+  }
+
+  // Sinh 1 phép nhân (a,b trong 1..9) thoả điều kiện nhỏ hơn/ lớn hơn ngưỡng
+  function genExpr(threshold, under){
+    let a=1,b=1,result=1;
+    for(let tries=0; tries<300; tries++){
+      a = randInt(1,9); b = randInt(1,9); result = a*b;
+      if(under && result < threshold) break;
+      if(!under && result > threshold) break;
+    }
+    return {a,b,result};
+  }
+
+  function shuffleArr(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      const tmp = arr[i]; arr[i]=arr[j]; arr[j]=tmp;
+    }
+    return arr;
+  }
+
+  function scheduleSpawns(dt){
+    const lvl = currentLevel();
+    const gapDistance = (startLineY) / 4; // "khoảng cách 1/4 đường đua"
+    const interval = gapDistance / lvl.speed; // seconds
+
+    roundTimer -= dt;
+    if(roundTimer <= 0){
+      roundTimer = interval;
+
+      // Mỗi lượt: chọn ngẫu nhiên 2 đường đua có kết quả < ngưỡng, 2 đường đua còn lại > ngưỡng
+      const lanes = shuffleArr([0,1,2,3]);
+      const underLanes = lanes.slice(0, LANES/2);
+      const overLanes = lanes.slice(LANES/2);
+
+      // Các mốc thời gian xuất phát so le nhau trong 1 lượt (không rơi cùng hàng ngang)
+      const delays = shuffleArr([0, interval*0.25, interval*0.5, interval*0.75]);
+      let di = 0;
+
+      for(const lane of underLanes){
+        const e = genExpr(lvl.threshold, true);
+        pendingSpawns.push({lane, delay: delays[di++], a:e.a, b:e.b, result:e.result});
+      }
+      for(const lane of overLanes){
+        const e = genExpr(lvl.threshold, false);
+        pendingSpawns.push({lane, delay: delays[di++], a:e.a, b:e.b, result:e.result});
+      }
+    }
+
+    for(let i=pendingSpawns.length-1; i>=0; i--){
+      const s = pendingSpawns[i];
+      s.delay -= dt;
+      if(s.delay <= 0){
+        spawnProblem(s.lane, s.a, s.b, s.result);
+        pendingSpawns.splice(i,1);
+      }
+    }
+  }
+
+  // ---------- Update ----------
+  function update(dt){
+    if(state !== 'playing') return;
+    const lvl = currentLevel();
+
+    // timer
+    levelTimeLeft -= dt;
+    if(levelTimeLeft <= 0){
+      levelTimeLeft = 0;
+      nextLevelOrEnd();
+      return;
+    }
+
+    scheduleSpawns(dt);
+
+    // move problems
+    for(const p of problems){
+      if(p.caught) continue;
+      p.y += lvl.speed*dt;
+    }
+
+    // collision check: crossing character's y line
+    const band = 16;
+    for(const p of problems){
+      if(p.caught) continue;
+      if(Math.abs(p.y - character.y) <= band){
+        if(p.lane === character.lane){
+          p.caught = true;
+          const correct = p.result < lvl.threshold;
+          if(correct){
+            score += 1;
+            addFloater(character.x, character.y-30, '+1', '#5cff8f');
+            sndCorrect();
+          } else {
+            score -= 0.5;
+            if(score < 0) score = 0;
+            addFloater(character.x, character.y-30, '-0.5', '#ff5b5b');
+            sndWrong();
+          }
+        }
+        // Nếu là đường đua khác (không phải làn của nhân vật): biểu thức KHÔNG biến mất,
+        // vẫn tiếp tục rơi bình thường cho tới khi ra khỏi màn hình.
+      }
+    }
+    problems = problems.filter(p => !p.caught && p.y < H+40);
+
+    // floaters
+    for(const f of floaters){ f.y -= 40*dt; f.life -= dt; }
+    floaters = floaters.filter(f=>f.life>0);
+    for(const v of vanishFx){ v.life -= dt; }
+    vanishFx = vanishFx.filter(v=>v.life>0);
+
+    // character smooth slide to targetX
+    character.x += (character.targetX - character.x) * Math.min(1, dt*10);
+    character.animT += dt;
+
+    // HUD
+    hudScore.textContent = fmtScoreDisplay(score);
+    const tSec = Math.ceil(levelTimeLeft);
+    timeVal.textContent = tSec;
+    timeVal.classList.toggle('warn', tSec<=10);
+  }
+
+  function addFloater(x,y,text,color){
+    floaters.push({x,y,text,color,life:0.8});
+  }
+
+  function nextLevelOrEnd(){
+    levelIndex++;
+    if(levelIndex >= LEVELS.length){
+      endGame();
+    } else {
+      startLevelIntro();
+    }
+  }
+
+  function startLevelIntro(){
+    state = 'levelIntro';
+    problems = [];
+    pendingSpawns = [];
+    roundTimer = 0;
+    const lvl = currentLevel();
+    hudLevel.textContent = lvl.n;
+    levelOverlayBig.textContent = 'Level ' + lvl.n;
+    levelOverlaySub.textContent = 'Hứng kết quả nhỏ hơn ' + lvl.threshold;
+    levelOverlay.classList.add('show');
+    sndLevelUp();
+    levelTimeLeft = LEVEL_DURATION;
+    setTimeout(()=>{
+      levelOverlay.classList.remove('show');
+      state = 'playing';
+    }, 1800);
+  }
+
+  function endGame(){
+    state = 'ended';
+    sndGameOver();
+    endName.textContent = student.name || 'Học sinh';
+    endSTT.textContent = student.stt || '-';
+    endScore.textContent = fmtScoreDisplay(score);
+    endTime.textContent = '3 phút 20 giây';
+    let medal = 'Cố gắng hơn nhé!';
+    if(score >= 15) medal = '🌟 XUẤT SẮC! 🌟';
+    else if(score >= 10) medal = '👍 Rất giỏi!';
+    else if(score >= 5) medal = '🙂 Khá tốt!';
+    endMedal.textContent = medal;
+    showScreen(endScreen);
+  }
+
+  // ---------- Draw ----------
+  function drawBackground(){
+    ctx.fillStyle = '#3d4249';
+    ctx.fillRect(0,0,W,H);
+    // grass top strip
+    const grad = ctx.createLinearGradient(0,0,0,60);
+    grad.addColorStop(0,'#2e7d32'); grad.addColorStop(1,'#3d4249');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,W,60);
+  }
+
+  function drawTrack(){
+    for(let i=0;i<LANES;i++){
+      ctx.fillStyle = (i%2===0)? '#8a8f98' : '#82868f';
+      ctx.fillRect(i*laneW, 0, laneW, H);
+    }
+    // lane boundary dashed white lines + red/white barriers
+    for(let i=1;i<LANES;i++){
+      const x = i*laneW;
+      ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([14,10]);
+      ctx.beginPath();
+      ctx.moveTo(x,0); ctx.lineTo(x,H);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // barie (short red/white barriers), spaced every 70px, offset a bit to the side
+      const barW = 16, barH = 6;
+      for(let y=20; y<H; y+=70){
+        const isRed = (Math.floor(y/70)%2===0);
+        ctx.fillStyle = isRed ? '#e53935' : '#f5f5f5';
+        ctx.fillRect(x-barW/2, y, barW, barH);
+        ctx.strokeStyle = '#222';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x-barW/2, y, barW, barH);
+      }
+    }
+    // outer edges
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(W,0); ctx.lineTo(W,H); ctx.stroke();
+
+    // start line
+    const sq = 10;
+    for(let x=0; x<W; x+=sq){
+      const row = Math.floor(x/sq);
+      ctx.fillStyle = (row%2===0) ? '#fff' : '#111';
+      ctx.fillRect(x, startLineY, sq, 10);
+    }
+  }
+
+  function drawProblem(p){
+    const x = p.lane*laneW + laneW/2;
+    const y = p.y;
+    const text = p.a + ' × ' + p.b;
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.fillStyle = 'rgba(20,30,45,0.92)';
+    ctx.strokeStyle = '#ffcf3f';
+    ctx.lineWidth = 2;
+    roundRect(ctx, -32, -16, 64, 32, 8);
+    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 16px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 0, 1);
+    ctx.restore();
+  }
+
+  function roundRect(c,x,y,w,h,r){
+    c.beginPath();
+    c.moveTo(x+r,y);
+    c.arcTo(x+w,y,x+w,y+h,r);
+    c.arcTo(x+w,y+h,x,y+h,r);
+    c.arcTo(x,y+h,x,y,r);
+    c.arcTo(x,y,x+w,y,r);
+    c.closePath();
+  }
+
+  function drawCharacter(){
+    const x = character.x, y = character.y;
+    const t = character.animT;
+    const bob = Math.sin(t*8)*2;
+    const legSwing = Math.sin(t*10)*14;
+    ctx.save();
+    ctx.translate(x, y+bob);
+
+    // shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.beginPath(); ctx.ellipse(0, 26, 16, 5, 0,0,Math.PI*2); ctx.fill();
+
+    // legs
+    ctx.strokeStyle = '#2b3a55'; ctx.lineWidth = 5; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(-4,10); ctx.lineTo(-4+legSwing*0.3, 24); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(4,10); ctx.lineTo(4-legSwing*0.3, 24); ctx.stroke();
+
+    // arms
+    ctx.strokeStyle = '#ffcf3f'; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(-9,-2); ctx.lineTo(-9-legSwing*0.25, 10); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(9,-2); ctx.lineTo(9+legSwing*0.25, 10); ctx.stroke();
+
+    // body
+    ctx.fillStyle = '#ff6f3d';
+    roundRect(ctx, -10, -14, 20, 24, 6);
+    ctx.fill();
+
+    // head
+    ctx.fillStyle = '#ffd9a8';
+    ctx.beginPath(); ctx.arc(0,-24,10,0,Math.PI*2); ctx.fill();
+    // simple face
+    ctx.fillStyle = '#333';
+    ctx.beginPath(); ctx.arc(-3,-25,1.4,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(3,-25,1.4,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#333'; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.arc(0,-21,3,0,Math.PI); ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function drawFloaters(){
+    for(const f of floaters){
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, f.life/0.8);
+      ctx.fillStyle = f.color;
+      ctx.font = 'bold 18px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(f.text, f.x, f.y);
+      ctx.restore();
+    }
+    for(const v of vanishFx){
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, v.life/0.35);
+      ctx.strokeStyle = '#ff5b5b';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(v.x-10,v.y-10); ctx.lineTo(v.x+10,v.y+10); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(v.x+10,v.y-10); ctx.lineTo(v.x-10,v.y+10); ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  function render(){
+    drawBackground();
+    drawTrack();
+    for(const p of problems) drawProblem(p);
+    drawCharacter();
+    drawFloaters();
+  }
+
+  // ---------- Loop ----------
+  function loop(ts){
+    if(!lastTs) lastTs = ts;
+    let dt = (ts - lastTs)/1000;
+    if(dt > 0.05) dt = 0.05;
+    lastTs = ts;
+    update(dt);
+    render();
+    rafId = requestAnimationFrame(loop);
+  }
+
+  // ---------- Input ----------
+  function handlePointer(clientX, clientY){
+    if(state !== 'playing') { ensureAudio(); return; }
+    ensureAudio();
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W/rect.width, scaleY = H/rect.height;
+    const x = (clientX-rect.left)*scaleX;
+    const y = (clientY-rect.top)*scaleY;
+    const lane = Math.max(0, Math.min(LANES-1, Math.floor(x/laneW)));
+
+    if(lane !== character.lane){
+      character.lane = lane;
+      character.targetX = lane*laneW + laneW/2;
+      sndMove();
+      return;
+    }
+    // same lane -> vertical move
+    const step = 46;
+    if(y < character.y - 10){
+      // move forward (up) but limited by nearest problem ahead in this lane
+      let minY = topLimit;
+      for(const p of problems){
+        if(p.lane === character.lane && !p.caught && p.y < character.y){
+          minY = Math.max(minY, p.y + 20);
+        }
+      }
+      character.y = Math.max(minY, character.y - step);
+      sndMove();
+    } else if(y > character.y + 10){
+      character.y = Math.min(startLineY, character.y + step);
+      sndMove();
+    }
+  }
+
+  canvas.addEventListener('pointerdown', (e)=>{
+    e.preventDefault();
+    handlePointer(e.clientX, e.clientY);
+  }, {passive:false});
+
+  // ---------- Screen management ----------
+  function showScreen(el){
+    [setupScreen, gameScreen, endScreen].forEach(s=>s.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  startBtn.addEventListener('click', ()=>{
+    const stt = inputSTT.value.trim();
+    const name = inputName.value.trim();
+    if(!name){
+      inputName.style.outline = '2px solid #ff5b5b';
+      inputName.focus();
+      return;
+    }
+    student.stt = stt || '-';
+    student.name = name;
+    hudName.textContent = student.name;
+    hudSTT.textContent = student.stt;
+    ensureAudio();
+    resetGame();
+    showScreen(gameScreen);
+    startLevelIntro();
+    lastTs = 0;
+    if(rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(loop);
+  });
+
+  restartBtn.addEventListener('click', ()=>{
+    if(rafId) cancelAnimationFrame(rafId);
+    showScreen(setupScreen);
+  });
+
+  // initial render (idle preview)
+  drawBackground(); drawTrack(); drawCharacter();
+
+})();
+</script>
+</body>
+</html>
