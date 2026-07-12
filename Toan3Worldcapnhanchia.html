@@ -621,7 +621,14 @@
       const isCorrect = correctPositions.has(pos);
       let label, rawText;
       if(isCorrect){
-        label = p.text+' = '+p.result;
+        const correctType = randInt(0,2);
+        if(correctType === 0){
+          label = p.text+' = '+p.result;
+        } else if(correctType === 1){
+          label = p.text+' > '+(p.result-1);
+        } else {
+          label = p.text+' < '+(p.result+1);
+        }
         rawText = label;
       } else {
         const decoyType = randInt(0,3);
