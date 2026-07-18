@@ -32,6 +32,7 @@
     overflow-x:hidden;
     -webkit-tap-highlight-color: transparent;
     user-select:none;
+    touch-action: manipulation;
   }
   .app{
     height:100dvh;
@@ -366,6 +367,23 @@
 <script>
 (function(){
   "use strict";
+
+  /* ---- Khoá zoom trên di động: chặn double-tap và pinch-zoom ---- */
+  (function lockMobileZoom(){
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(e){
+      const now = Date.now();
+      if(now - lastTouchEnd <= 350){
+        e.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, {passive:false});
+    document.addEventListener('touchmove', function(e){
+      if(e.touches && e.touches.length > 1){ e.preventDefault(); } // chặn pinch-zoom 2 ngón
+    }, {passive:false});
+    document.addEventListener('dblclick', function(e){ e.preventDefault(); }, {passive:false});
+    document.addEventListener('gesturestart', function(e){ e.preventDefault(); }, {passive:false});
+  })();
 
   /* ============================================================
      1. DỮ LIỆU TỪ MẶC ĐỊNH
