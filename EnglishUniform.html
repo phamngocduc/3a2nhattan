@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Trân Trà AI English Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1C2B3A;
+    --board:#20364A;
+    --board-2:#274257;
+    --paper:#FBF8F1;
+    --paper-line:#E4DFCF;
+    --chalk:#F7F5EF;
+    --marker:#FFC93C;
+    --marker-2:#FFB100;
+    --coral:#EF6F5B;
+    --mint:#31A98B;
+    --sky:#4FA8D8;
+    --muted:#7C8A97;
+    --shadow: 0 10px 30px rgba(28,43,58,.12);
+    --radius: 18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:
+      linear-gradient(180deg, var(--board) 0%, var(--board) 210px, var(--paper) 210px, var(--paper) 100%);
+    color:var(--ink);
+    min-height:100vh;
+    padding-bottom:40px;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:0 18px;}
+
+  header.top{padding:34px 0 70px;text-align:center;position:relative;}
+  header.top .eyebrow{
+    font-family:'Caveat',cursive;
+    color:var(--marker);
+    font-size:22px;
+    letter-spacing:.5px;
+    display:inline-block;
+    transform:rotate(-2deg);
+    margin-bottom:2px;
+  }
+  header.top h1{
+    font-family:'Baloo 2',sans-serif;
+    color:var(--chalk);
+    font-size:clamp(28px,6vw,44px);
+    margin:0;
+    font-weight:800;
+    letter-spacing:.3px;
+  }
+  header.top h1 span{color:var(--marker);}
+  header.top .chalk-underline{
+    width:230px;height:10px;margin:10px auto 0;
+    background:transparent;
+  }
+  header.top .chalk-underline svg{width:100%;height:100%;}
+  header.top p.sub{color:#C8D4DD;font-size:14.5px;margin-top:10px;}
+
+  .card{
+    background:var(--chalk);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    border:1px solid rgba(28,43,58,.06);
+  }
+
+  /* Registration */
+  #registration{
+    margin-top:-48px;
+    padding:26px 24px 28px;
+    text-align:center;
+  }
+  #registration h2{font-family:'Baloo 2',sans-serif;font-size:21px;margin:0 0 4px;}
+  #registration p{color:var(--muted);font-size:14px;margin:0 0 18px;}
+  #nameInput{
+    width:100%;max-width:340px;
+    padding:13px 16px;
+    border-radius:12px;
+    border:2px solid var(--paper-line);
+    font-size:16px;font-family:'Inter',sans-serif;
+    text-align:center;
+    outline:none;
+    transition:border-color .15s;
+  }
+  #nameInput:focus{border-color:var(--marker-2);}
+  .btn{
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    border:none;
+    border-radius:12px;
+    padding:12px 22px;
+    cursor:pointer;
+    font-size:14.5px;
+    transition:transform .1s ease, box-shadow .15s ease, opacity .15s;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn:active{transform:scale(.96);}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+  .btn-primary{background:var(--marker);color:var(--ink);box-shadow:0 6px 16px rgba(255,193,60,.4);}
+  .btn-primary:hover:not(:disabled){background:var(--marker-2);}
+  .btn-outline{background:#fff;color:var(--board);border:2px solid var(--paper-line);}
+  .btn-outline:hover:not(:disabled){border-color:var(--sky);color:var(--sky);}
+  .btn-mint{background:var(--mint);color:#fff;}
+  .btn-coral{background:var(--coral);color:#fff;}
+  .btn-sm{padding:8px 14px;font-size:13px;border-radius:10px;}
+
+  #registration .go{margin-top:16px;}
+
+  /* Main app */
+  #mainApp{margin-top:22px;}
+  .student-badge{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--board-2);color:var(--chalk);
+    border-radius:14px;padding:12px 18px;margin-bottom:16px;
+    font-size:14px;
+  }
+  .student-badge b{color:var(--marker);}
+  .student-badge button{
+    background:transparent;border:1px solid rgba(255,255,255,.3);color:#DCE6EC;
+    border-radius:8px;padding:5px 10px;font-size:12px;cursor:pointer;
+  }
+
+  nav.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  nav.tabs button{
+    flex:1;min-width:110px;
+    font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;
+    background:#fff;color:var(--board);
+    border:2px solid var(--paper-line);
+    border-radius:14px 14px 4px 4px;
+    padding:11px 8px;cursor:pointer;
+    transition:.15s;
+  }
+  nav.tabs button.active{
+    background:var(--board);color:var(--chalk);border-color:var(--board);
+  }
+
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  .panel-head{padding:20px 22px 6px;}
+  .panel-head h2{font-family:'Baloo 2',sans-serif;font-size:19px;margin:0 0 4px;}
+  .panel-head p{color:var(--muted);font-size:13.5px;margin:0;line-height:1.5;}
+
+  .group-label{
+    font-family:'Baloo 2',sans-serif;font-size:14px;color:var(--sky);
+    margin:18px 22px 6px;display:flex;align-items:center;gap:6px;
+  }
+  .word-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:0 22px 6px;}
+  .word-chip{
+    background:#fff;border:2px solid var(--paper-line);border-radius:12px;
+    padding:10px 12px;cursor:pointer;text-align:left;transition:.15s;
+  }
+  .word-chip:hover{border-color:var(--sky);}
+  .word-chip.selected{border-color:var(--marker-2);background:#FFF7E0;}
+  .word-chip .w{font-family:'Baloo 2',sans-serif;font-size:16px;}
+  .word-chip .ipa{font-size:11.5px;color:var(--muted);}
+  .word-chip .mark{float:right;font-size:15px;}
+  .mark.ok{color:var(--mint);}
+  .mark.no{color:var(--coral);}
+
+  .practice-stage{
+    margin:16px 22px 22px;
+    background:#fff;border-radius:16px;border:2px dashed var(--paper-line);
+    padding:22px;
+  }
+  .stage-word{font-family:'Baloo 2',sans-serif;font-size:clamp(28px,6vw,40px);text-align:center;color:var(--ink);}
+  .stage-ipa{text-align:center;color:var(--sky);font-size:15px;margin-top:2px;}
+  .stage-tip{
+    background:#FFF7E0;border-radius:10px;padding:10px 14px;font-size:13.5px;
+    color:#7A5E12;margin-top:14px;line-height:1.5;
+  }
+  .btn-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px;}
+  .status-line{text-align:center;font-size:13.5px;margin-top:12px;min-height:20px;color:var(--muted);}
+  .status-line.ok{color:var(--mint);font-weight:600;}
+  .status-line.no{color:var(--coral);font-weight:600;}
+  audio.playback{display:block;margin:12px auto 0;width:100%;max-width:340px;}
+
+  .sentence-box{
+    font-size:clamp(17px,3.6vw,21px);text-align:center;line-height:1.7;
+    font-family:'Inter',sans-serif;font-weight:600;min-height:64px;
+    display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;
+  }
+  .sentence-box .tok{color:#B9C2C9;transition:color .12s;}
+  .sentence-box .tok.said{color:var(--ink);}
+  .sentence-box .tok.current{color:var(--marker-2);text-decoration:underline;}
+
+  .progress-dots{display:flex;justify-content:center;gap:7px;margin-top:14px;}
+  .progress-dots span{width:9px;height:9px;border-radius:50%;background:var(--paper-line);}
+  .progress-dots span.on{background:var(--marker-2);}
+
+  .rec-indicator{
+    display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--coral);font-weight:600;
+    margin-top:6px;justify-content:center;width:100%;
+  }
+  .rec-dot{width:8px;height:8px;border-radius:50%;background:var(--coral);animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+
+  .score-pill{
+    display:inline-block;margin-top:10px;padding:5px 14px;border-radius:20px;
+    font-size:13px;font-weight:700;
+  }
+  .score-pill.good{background:#E4F6EF;color:var(--mint);}
+  .score-pill.mid{background:#FFF3D6;color:#B5820C;}
+  .score-pill.low{background:#FDE8E5;color:var(--coral);}
+
+  footer.credit{
+    text-align:center;color:#98A4AE;font-size:12.5px;margin-top:30px;padding:0 18px;
+  }
+  footer.credit b{color:var(--board);}
+
+  .hint{font-size:12px;color:var(--muted);text-align:center;margin-top:4px;}
+  [hidden]{display:none !important;}
+
+  @media (max-width:480px){
+    .word-grid{grid-template-columns:repeat(2,1fr);}
+    nav.tabs button{font-size:12.5px;padding:10px 6px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <span class="eyebrow">Câu lạc bộ nói tiếng Anh</span>
+    <h1>Trân Trà <span>AI</span> English Club</h1>
+    <div class="chalk-underline">
+      <svg viewBox="0 0 230 10" preserveAspectRatio="none"><path d="M2,7 C60,2 170,9 228,4" stroke="#FFC93C" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+    </div>
+    <p class="sub">Chủ đề: Introducing My School Uniform</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section id="registration" class="card">
+    <h2>👋 Chào con!</h2>
+    <p>Con nhập họ tên để bắt đầu buổi luyện nói nhé.</p>
+    <input id="nameInput" type="text" placeholder="Nhập họ và tên của con..." autocomplete="off">
+    <div class="go">
+      <button class="btn btn-primary" id="startBtn">Bắt đầu luyện tập 🚀</button>
+    </div>
+  </section>
+
+  <section id="mainApp" hidden>
+    <div class="student-badge">
+      <span>Học sinh: <b id="studentNameShow"></b></span>
+      <button id="changeNameBtn">Đổi tên</button>
+    </div>
+
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="tab1">1️⃣ Từ vựng</button>
+      <button class="tab-btn" data-tab="tab2">2️⃣ Nói theo câu</button>
+      <button class="tab-btn" data-tab="tab3">3️⃣ Hỏi &amp; đáp</button>
+    </nav>
+
+    <!-- TAB 1 -->
+    <div id="tab1" class="tab-panel active card">
+      <div class="panel-head">
+        <h2>Luyện phát âm từ vựng</h2>
+        <p>Chọn một từ, nghe mẫu, nghe cách đọc đúng, rồi bấm ghi âm để máy chấm phát âm của con.</p>
+      </div>
+
+      <div class="group-label">🟦 Danh từ</div>
+      <div class="word-grid" id="grid-noun"></div>
+      <div class="group-label">🟨 Tính từ</div>
+      <div class="word-grid" id="grid-adj"></div>
+      <div class="group-label">🟩 Động từ</div>
+      <div class="word-grid" id="grid-verb"></div>
+
+      <div class="practice-stage" id="p1stage">
+        <div class="stage-word" id="p1word">Chọn một từ ở trên 👆</div>
+        <div class="stage-ipa" id="p1ipa"></div>
+        <div class="stage-tip" id="p1tip" hidden></div>
+
+        <div class="btn-row">
+          <button class="btn btn-outline" id="p1listen">🔊 Nghe giọng đọc mẫu</button>
+          <button class="btn btn-outline" id="p1analyze">💡 Nghe phân tích cách đọc</button>
+          <button class="btn btn-primary" id="p1record">🎙️ Con đọc từ này</button>
+          <button class="btn btn-outline btn-sm" id="p1replay" hidden>🔁 Nghe lại giọng con</button>
+        </div>
+        <div class="rec-indicator" id="p1recInd" hidden><span class="rec-dot"></span> Đang ghi âm... bấm lại để dừng</div>
+        <div class="status-line" id="p1status"></div>
+        <audio class="playback" id="p1audio" controls hidden></audio>
+      </div>
+    </div>
+
+    <!-- TAB 2 -->
+    <div id="tab2" class="tab-panel card">
+      <div class="panel-head">
+        <h2>Nghe và nói theo câu</h2>
+        <p>Máy đọc một câu, chữ sẽ chạy như karaoke để con đọc theo, sau đó con ghi âm và gửi kết quả cho cô/thầy.</p>
+      </div>
+
+      <div class="practice-stage">
+        <div class="progress-dots" id="p2dots"></div>
+        <div class="sentence-box" id="p2sentence"></div>
+
+        <div class="btn-row">
+          <button class="btn btn-outline" id="p2listen">🔊 Nghe câu mẫu</button>
+          <button class="btn btn-outline" id="p2karaoke">🎤 Đọc theo con nhé (karaoke)</button>
+          <button class="btn btn-primary" id="p2record">🎙️ Ghi âm câu này</button>
+          <button class="btn btn-outline btn-sm" id="p2replay" hidden>🔁 Nghe lại</button>
+        </div>
+        <div class="rec-indicator" id="p2recInd" hidden><span class="rec-dot"></span> Đang ghi âm... bấm lại để dừng</div>
+        <div class="status-line" id="p2status"></div>
+        <audio class="playback" id="p2audio" controls hidden></audio>
+
+        <div class="btn-row" style="margin-top:18px;">
+          <button class="btn btn-outline" id="p2prev">⬅️ Câu trước</button>
+          <button class="btn btn-outline" id="p2next">Câu tiếp theo ➡️</button>
+          <button class="btn btn-mint" id="p2send" disabled>📤 Gửi kết quả cho cô/thầy</button>
+        </div>
+        <div class="hint" id="p2sendStatus"></div>
+      </div>
+    </div>
+
+    <!-- TAB 3 -->
+    <div id="tab3" class="tab-panel card">
+      <div class="panel-head">
+        <h2>Hỏi &amp; đáp cùng thầy AI</h2>
+        <p>Thầy AI (giọng nam trầm) sẽ hỏi, con trả lời đúng câu tương ứng nhé.</p>
+      </div>
+
+      <div class="practice-stage">
+        <div class="progress-dots" id="p3dots"></div>
+        <div class="stage-word" id="p3question" style="font-size:clamp(19px,4.4vw,26px);">Bấm "Nghe câu hỏi" để bắt đầu</div>
+        <div class="hint" id="p3expected"></div>
+
+        <div class="btn-row">
+          <button class="btn btn-outline" id="p3ask">🔊 Nghe câu hỏi</button>
+          <button class="btn btn-primary" id="p3record">🎙️ Trả lời câu hỏi</button>
+          <button class="btn btn-outline btn-sm" id="p3replay" hidden>🔁 Nghe lại</button>
+        </div>
+        <div class="rec-indicator" id="p3recInd" hidden><span class="rec-dot"></span> Đang ghi âm... bấm lại để dừng</div>
+        <div class="status-line" id="p3status"></div>
+        <audio class="playback" id="p3audio" controls hidden></audio>
+
+        <div class="btn-row" style="margin-top:18px;">
+          <button class="btn btn-outline" id="p3next">Câu hỏi tiếp theo ➡️</button>
+          <button class="btn btn-mint" id="p3send" disabled>📤 Gửi kết quả cho cô/thầy</button>
+        </div>
+        <div class="hint" id="p3sendStatus"></div>
+      </div>
+    </div>
+
+  </section>
+
+  <footer class="credit">Designed by <b>Thầy Phạm Ngọc Đức</b> (Bố Trân Trà · 0961366868)</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------------- CONFIG ---------------- */
+  var TG_TOKEN = "8897246108:AAGwlbmZ7UdMppbjE3yViIBEE8gbqkiSVC4";
+  var TG_CHAT_ID = "1819630444";
+
+  var SENTENCES = [
+    "I wear my school uniform every weekday.",
+    "My uniform is comfortable and easy to wear.",
+    "My favorite part of my uniform is my school T-shirt.",
+    "I always keep my uniform clean and tidy.",
+    "I feel happy and confident when I wear my school uniform."
+  ];
+
+  var QUESTIONS = [
+    "How often do you wear your school uniform?",
+    "What is your school uniform like to wear?",
+    "What is your favorite part of your uniform?",
+    "How do you take care of your school uniform?",
+    "How do you feel when you wear your school uniform?"
+  ];
+
+  var WORDS = {
+    noun: [
+      {w:"uniform", ipa:"/ˈjuː.nɪ.fɔːm/", tip:"Từ có 3 âm tiết, trọng âm rơi vào âm tiết đầu: U-ni-form. Âm 'u' đọc là /juː/, không đọc như 'u' tiếng Việt."},
+      {w:"T-shirt", ipa:"/ˈtiː.ʃɜːt/", tip:"Đọc rõ âm 'sh' /ʃ/ trong 'shirt', không đọc thành 's'. Trọng âm rơi vào chữ 'T'."},
+      {w:"school", ipa:"/skuːl/", tip:"Cụm phụ âm đầu 'sk' đọc liền, không thêm nguyên âm ở giữa. Âm 'oo' đọc dài /uː/."},
+      {w:"skirt", ipa:"/skɜːt/", tip:"Cụm phụ âm đầu 'sk' đọc liền mạch, âm cuối 't' bật nhẹ, không được bỏ sót."}
+    ],
+    adj: [
+      {w:"clean", ipa:"/kliːn/", tip:"Cụm phụ âm đầu 'cl' đọc liền nhau, âm 'ea' đọc dài /iː/."},
+      {w:"tidy", ipa:"/ˈtaɪ.di/", tip:"2 âm tiết, trọng âm vào âm đầu: TI-dy. Âm 'i' đầu đọc là /aɪ/."},
+      {w:"comfortable", ipa:"/ˈkʌm.fə.tə.bəl/", tip:"Từ dài nhưng trọng âm chỉ rơi vào âm đầu: COM-for-ta-ble, các âm sau đọc nhẹ và nhanh."},
+      {w:"easy", ipa:"/ˈiː.zi/", tip:"2 âm tiết, trọng âm vào âm đầu. Chú ý chữ 's' đọc là /z/, không phải /s/."},
+      {w:"happy", ipa:"/ˈhæ.pi/", tip:"2 âm tiết, trọng âm vào âm đầu HAP-py. Âm 'a' đọc là /æ/, miệng mở rộng."},
+      {w:"confident", ipa:"/ˈkɒn.fɪ.dənt/", tip:"3 âm tiết, trọng âm vào âm đầu CON-fi-dent. Âm cuối 't' đọc nhẹ nhưng không bỏ sót."}
+    ],
+    verb: [
+      {w:"wear", ipa:"/weər/", tip:"Cụm 'ea' đọc là /eə/ liền một âm, không tách 'we-ar'."},
+      {w:"like", ipa:"/laɪk/", tip:"Âm 'i' đọc là /aɪ/, âm cuối 'k' bật nhẹ và rõ."},
+      {w:"bought", ipa:"/bɔːt/", tip:"Từ viết dài nhưng chỉ đọc 1 âm tiết /bɔːt/, không đọc chữ 'gh'. Âm cuối 't' cần rõ."},
+      {w:"keep", ipa:"/kiːp/", tip:"Âm 'ee' đọc dài /iː/, âm cuối 'p' bật môi rõ ràng."},
+      {w:"feel", ipa:"/fiːl/", tip:"Âm 'ee' đọc dài /iː/, âm cuối 'l' đọc rõ, đầu lưỡi chạm hàm trên."}
+    ]
+  };
+
+  var VN_TIP_PREFIX = "Mẹo phát âm: ";
+
+  /* ---------------- STATE ---------------- */
+  var state = {
+    name: "",
+    p1selected: null,
+    p2index: 0,
+    p3index: 0,
+    recorder: null,
+    recognizer: null,
+    p1blob: null, p2blob: null, p3blob: null,
+    p2score: null, p3score: null,
+    mediaStream: null
+  };
+
+  /* ---------------- UTIL: TTS ---------------- */
+  var voicesCache = [];
+  function loadVoices(){ voicesCache = window.speechSynthesis ? window.speechSynthesis.getVoices() : []; }
+  if (window.speechSynthesis){
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }
+  function pickVoice(opts){
+    opts = opts || {};
+    var list = voicesCache.length ? voicesCache : (window.speechSynthesis ? window.speechSynthesis.getVoices() : []);
+    var lang = opts.lang || "en";
+    var wantMale = !!opts.male;
+    var candidates = list.filter(function(v){ return v.lang && v.lang.toLowerCase().indexOf(lang.toLowerCase()) === 0; });
+    if (wantMale){
+      var male = candidates.filter(function(v){ return /male|david|mark|daniel|george|man/i.test(v.name) && !/female/i.test(v.name); });
+      if (male.length) return male[0];
+    }
+    return candidates[0] || list[0] || null;
+  }
+  function speak(text, opts){
+    return new Promise(function(resolve){
+      if (!window.speechSynthesis){ resolve(); return; }
+      window.speechSynthesis.cancel();
+      opts = opts || {};
+      var u = new SpeechSynthesisUtterance(text);
+      var v = pickVoice(opts);
+      if (v) u.voice = v;
+      u.lang = opts.lang || "en-US";
+      u.rate = opts.rate || 0.85;
+      u.pitch = opts.pitch != null ? opts.pitch : 1;
+      u.onend = resolve;
+      u.onerror = resolve;
+      if (opts.onboundary) u.onboundary = opts.onboundary;
+      window.speechSynthesis.speak(u);
+    });
+  }
+
+  /* ---------------- UTIL: scoring ---------------- */
+  function normalize(s){
+    return (s || "").toLowerCase().replace(/[.,!?'"]/g,"").replace(/\s+/g," ").trim();
+  }
+  function levenshtein(a,b){
+    var m=a.length,n=b.length;
+    var dp=[]; for(var i=0;i<=m;i++){dp.push([i]);}
+    for(var j=0;j<=n;j++){dp[0][j]=j;}
+    for(i=1;i<=m;i++){
+      for(j=1;j<=n;j++){
+        if(a[i-1]===b[j-1]) dp[i][j]=dp[i-1][j-1];
+        else dp[i][j]=1+Math.min(dp[i-1][j-1],dp[i-1][j],dp[i][j-1]);
+      }
+    }
+    return dp[m][n];
+  }
+  function similarity(a,b){
+    a=normalize(a); b=normalize(b);
+    if(!a.length && !b.length) return 1;
+    var dist = levenshtein(a,b);
+    var maxLen = Math.max(a.length,b.length) || 1;
+    return Math.max(0, 1 - dist/maxLen);
+  }
+
+  /* ---------------- SPEECH RECOGNITION ---------------- */
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  function recognizeOnce(timeoutMs){
+    return new Promise(function(resolve){
+      if (!SR){ resolve({ok:false, transcript:"", reason:"unsupported"}); return; }
+      var rec = new SR();
+      rec.lang = "en-US";
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+      var done = false;
+      var timer = setTimeout(function(){
+        if(!done){ done=true; try{rec.stop();}catch(e){} resolve({ok:false, transcript:"", reason:"timeout"}); }
+      }, timeoutMs || 8000);
+      rec.onresult = function(ev){
+        if(done) return; done=true; clearTimeout(timer);
+        var t = ev.results[0][0].transcript;
+        resolve({ok:true, transcript:t});
+      };
+      rec.onerror = function(){
+        if(done) return; done=true; clearTimeout(timer);
+        resolve({ok:false, transcript:"", reason:"error"});
+      };
+      rec.onend = function(){
+        if(done) return; done=true; clearTimeout(timer);
+        resolve({ok:false, transcript:"", reason:"ended"});
+      };
+      try{ rec.start(); }catch(e){ done=true; clearTimeout(timer); resolve({ok:false, transcript:"", reason:"start-failed"}); }
+    });
+  }
+
+  /* ---------------- RECORDING (mic + recognition together) ---------------- */
+  function startRecording(){
+    return navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+      state.mediaStream = stream;
+      var chunks = [];
+      var mr = new MediaRecorder(stream);
+      mr.ondataavailable = function(e){ if(e.data && e.data.size>0) chunks.push(e.data); };
+      var stopPromise = new Promise(function(resolve){
+        mr.onstop = function(){
+          var blob = new Blob(chunks, {type: mr.mimeType || "audio/webm"});
+          stream.getTracks().forEach(function(t){t.stop();});
+          resolve(blob);
+        };
+      });
+      mr.start();
+      var recognitionPromise = recognizeOnce(15000);
+      state.recorder = mr;
+      return {
+        stop: function(){
+          try{ mr.stop(); }catch(e){}
+          return Promise.all([stopPromise, recognitionPromise]).then(function(res){
+            return {blob: res[0], transcript: res[1]};
+          });
+        }
+      };
+    });
+  }
+
+  /* ---------------- TELEGRAM ---------------- */
+  function sendToTelegram(blob, caption, statusEl){
+    if (!blob){ statusEl.textContent = "Chưa có bản ghi âm để gửi."; return; }
+    statusEl.textContent = "Đang gửi kết quả cho cô/thầy...";
+    var fd = new FormData();
+    fd.append("chat_id", TG_CHAT_ID);
+    fd.append("caption", caption);
+    fd.append("document", blob, "ghi-am.webm");
+    fetch("https://api.telegram.org/bot" + TG_TOKEN + "/sendDocument", {method:"POST", body:fd})
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if (data && data.ok){ statusEl.textContent = "✅ Đã gửi kết quả cho cô/thầy!"; }
+        else { statusEl.textContent = "⚠️ Gửi chưa thành công, con thử lại nhé."; }
+      })
+      .catch(function(){ statusEl.textContent = "⚠️ Không thể kết nối để gửi kết quả."; });
+  }
+
+  function scoreLabel(score){
+    var pct = Math.round(score*100);
+    if (pct >= 75) return {pct:pct, cls:"good", text:"Rất tốt 🌟"};
+    if (pct >= 50) return {pct:pct, cls:"mid", text:"Khá ổn, cố thêm chút nhé 💪"};
+    return {pct:pct, cls:"low", text:"Con thử đọc lại nhé 🙂"};
+  }
+
+  /* ================= REGISTRATION ================= */
+  document.getElementById("startBtn").addEventListener("click", function(){
+    var v = document.getElementById("nameInput").value.trim();
+    if (!v){ document.getElementById("nameInput").focus(); return; }
+    state.name = v;
+    document.getElementById("studentNameShow").textContent = v;
+    document.getElementById("registration").hidden = true;
+    document.getElementById("mainApp").hidden = false;
+  });
+  document.getElementById("nameInput").addEventListener("keydown", function(e){
+    if (e.key === "Enter") document.getElementById("startBtn").click();
+  });
+  document.getElementById("changeNameBtn").addEventListener("click", function(){
+    document.getElementById("mainApp").hidden = true;
+    document.getElementById("registration").hidden = false;
+  });
+
+  /* ================= TABS ================= */
+  var tabBtns = document.querySelectorAll(".tab-btn");
+  tabBtns.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      tabBtns.forEach(function(b){ b.classList.remove("active"); });
+      document.querySelectorAll(".tab-panel").forEach(function(p){ p.classList.remove("active"); });
+      btn.classList.add("active");
+      document.getElementById(btn.getAttribute("data-tab")).classList.add("active");
+    });
+  });
+
+  /* ================= TAB 1: VOCAB ================= */
+  function renderGrid(type, containerId){
+    var container = document.getElementById(containerId);
+    WORDS[type].forEach(function(item){
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "word-chip";
+      chip.innerHTML = '<div class="w">'+item.w+' <span class="mark" data-mark></span></div><div class="ipa">'+item.ipa+'</div>';
+      chip.addEventListener("click", function(){
+        document.querySelectorAll(".word-chip").forEach(function(c){c.classList.remove("selected");});
+        chip.classList.add("selected");
+        selectWord(item, chip);
+      });
+      item._chip = chip;
+      container.appendChild(chip);
+    });
+  }
+  renderGrid("noun","grid-noun");
+  renderGrid("adj","grid-adj");
+  renderGrid("verb","grid-verb");
+
+  function selectWord(item, chip){
+    state.p1selected = item;
+    state.p1blob = null;
+    document.getElementById("p1word").textContent = item.w;
+    document.getElementById("p1ipa").textContent = item.ipa;
+    document.getElementById("p1tip").hidden = true;
+    document.getElementById("p1status").textContent = "";
+    document.getElementById("p1status").className = "status-line";
+    document.getElementById("p1replay").hidden = true;
+    document.getElementById("p1audio").hidden = true;
+  }
+
+  document.getElementById("p1listen").addEventListener("click", function(){
+    if (!state.p1selected) return;
+    speak(state.p1selected.w, {lang:"en-US", rate:0.8});
+  });
+
+  document.getElementById("p1analyze").addEventListener("click", function(){
+    if (!state.p1selected) return;
+    var tipEl = document.getElementById("p1tip");
+    tipEl.textContent = VN_TIP_PREFIX + state.p1selected.tip;
+    tipEl.hidden = false;
+    var vnVoice = pickVoice({lang:"vi"});
+    if (vnVoice){ speak(state.p1selected.tip, {lang:"vi-VN", rate:0.95}); }
+  });
+
+  document.getElementById("p1record").addEventListener("click", function(){
+    handleRecordToggle({
+      btn: document.getElementById("p1record"),
+      indicator: document.getElementById("p1recInd"),
+      statusEl: document.getElementById("p1status"),
+      audioEl: document.getElementById("p1audio"),
+      replayBtn: document.getElementById("p1replay"),
+      target: function(){ return state.p1selected ? state.p1selected.w : ""; },
+      onDone: function(res){
+        state.p1blob = res.blob;
+        var sim = similarity(res.transcript, state.p1selected.w);
+        var lab = scoreLabel(sim);
+        var statusEl = document.getElementById("p1status");
+        if (!res.transcript){
+          statusEl.textContent = "Không nghe rõ, con thử đọc to và rõ hơn nhé 🙂";
+          statusEl.className = "status-line no";
+        } else {
+          statusEl.textContent = 'Máy nghe được: "' + res.transcript + '" — ' + lab.text + " (" + lab.pct + "%)";
+          statusEl.className = "status-line " + (lab.pct>=75 ? "ok":(lab.pct>=50?"":"no"));
+        }
+        markChip(state.p1selected, sim >= 0.6);
+      }
+    });
+  });
+
+  function markChip(item, ok){
+    if (!item || !item._chip) return;
+    var m = item._chip.querySelector("[data-mark]");
+    m.textContent = ok ? "✅" : "❌";
+    m.className = "mark " + (ok ? "ok" : "no");
+  }
+
+  /* ================= SHARED RECORD HANDLER ================= */
+  var recordingSession = null;
+  function handleRecordToggle(cfg){
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      cfg.statusEl.textContent = "Trình duyệt này không hỗ trợ ghi âm. Con dùng Google Chrome nhé.";
+      return;
+    }
+    if (!recordingSession){
+      cfg.btn.textContent = "⏹️ Dừng ghi âm";
+      cfg.indicator.hidden = false;
+      cfg.statusEl.textContent = "";
+      cfg.statusEl.className = "status-line";
+      startRecording().then(function(session){
+        recordingSession = {session: session, cfg: cfg};
+      }).catch(function(){
+        cfg.statusEl.textContent = "Con vui lòng cho phép sử dụng micro để ghi âm.";
+        cfg.btn.textContent = originalLabel(cfg.btn);
+        cfg.indicator.hidden = true;
+        recordingSession = null;
+      });
+      return;
+    }
+    // currently recording -> stop
+    var active = recordingSession;
+    recordingSession = null;
+    cfg.indicator.hidden = true;
+    cfg.statusEl.textContent = "Đang chấm điểm...";
+    active.session.stop().then(function(res){
+      cfg.btn.textContent = originalLabel(cfg.btn);
+      var url = URL.createObjectURL(res.blob);
+      cfg.audioEl.src = url;
+      cfg.audioEl.hidden = false;
+      cfg.replayBtn.hidden = false;
+      cfg.onDone(res);
+    });
+  }
+  function originalLabel(btn){
+    if (btn.id === "p1record") return "🎙️ Con đọc từ này";
+    if (btn.id === "p2record") return "🎙️ Ghi âm câu này";
+    if (btn.id === "p3record") return "🎙️ Trả lời câu hỏi";
+    return "🎙️ Ghi âm";
+  }
+
+  document.getElementById("p1replay").addEventListener("click", function(){
+    document.getElementById("p1audio").play();
+  });
+
+  /* ================= TAB 2: SENTENCE PRACTICE ================= */
+  function renderDots(containerId, count, current){
+    var el = document.getElementById(containerId);
+    el.innerHTML = "";
+    for (var i=0;i<count;i++){
+      var d = document.createElement("span");
+      if (i===current) d.className = "on";
+      el.appendChild(d);
+    }
+  }
+  function renderSentenceTokens(containerId, sentence){
+    var el = document.getElementById(containerId);
+    el.innerHTML = "";
+    sentence.split(" ").forEach(function(word, idx){
+      var s = document.createElement("span");
+      s.className = "tok";
+      s.textContent = word;
+      s.setAttribute("data-idx", idx);
+      el.appendChild(s);
+    });
+  }
+  function loadP2(){
+    renderDots("p2dots", SENTENCES.length, state.p2index);
+    renderSentenceTokens("p2sentence", SENTENCES[state.p2index]);
+    document.getElementById("p2status").textContent = "";
+    document.getElementById("p2status").className = "status-line";
+    document.getElementById("p2audio").hidden = true;
+    document.getElementById("p2replay").hidden = true;
+    document.getElementById("p2send").disabled = true;
+    document.getElementById("p2sendStatus").textContent = "";
+    state.p2blob = null; state.p2score = null;
+  }
+  loadP2();
+
+  document.getElementById("p2listen").addEventListener("click", function(){
+    speak(SENTENCES[state.p2index], {lang:"en-US", rate:0.85});
+  });
+
+  document.getElementById("p2karaoke").addEventListener("click", function(){
+    var tokens = document.querySelectorAll("#p2sentence .tok");
+    tokens.forEach(function(t){ t.className = "tok"; });
+    var wordCount = 0;
+    speak(SENTENCES[state.p2index], {
+      lang:"en-US", rate:0.6,
+      onboundary: function(ev){
+        if (ev.name === "word" || ev.name === undefined){
+          if (tokens[wordCount]){
+            tokens.forEach(function(t,i){ t.className = i < wordCount ? "tok said" : "tok"; });
+            tokens[wordCount].className = "tok current";
+          }
+          wordCount++;
+        }
+      }
+    }).then(function(){
+      tokens.forEach(function(t){ t.className = "tok said"; });
+    });
+  });
+
+  document.getElementById("p2record").addEventListener("click", function(){
+    handleRecordToggle({
+      btn: document.getElementById("p2record"),
+      indicator: document.getElementById("p2recInd"),
+      statusEl: document.getElementById("p2status"),
+      audioEl: document.getElementById("p2audio"),
+      replayBtn: document.getElementById("p2replay"),
+      onDone: function(res){
+        state.p2blob = res.blob;
+        var sim = similarity(res.transcript, SENTENCES[state.p2index]);
+        state.p2score = Math.round(sim*100);
+        var lab = scoreLabel(sim);
+        var statusEl = document.getElementById("p2status");
+        if (!res.transcript){
+          statusEl.textContent = "Không nghe rõ, con đọc to và chậm hơn nhé 🙂";
+          statusEl.className = "status-line no";
+        } else {
+          statusEl.innerHTML = 'Máy nghe được: "' + res.transcript + '"<br><span class="score-pill ' + lab.cls + '">' + lab.text + " · " + lab.pct + "%</span>";
+        }
+        document.getElementById("p2send").disabled = false;
+      }
+    });
+  });
+
+  document.getElementById("p2replay").addEventListener("click", function(){
+    document.getElementById("p2audio").play();
+  });
+
+  document.getElementById("p2prev").addEventListener("click", function(){
+    state.p2index = (state.p2index - 1 + SENTENCES.length) % SENTENCES.length;
+    loadP2();
+  });
+  document.getElementById("p2next").addEventListener("click", function(){
+    state.p2index = (state.p2index + 1) % SENTENCES.length;
+    loadP2();
+  });
+  document.getElementById("p2send").addEventListener("click", function(){
+    var caption = "Học sinh: " + state.name + "\nLuyện tập 2 - Câu " + (state.p2index+1) + "/" + SENTENCES.length +
+      "\nCâu: " + SENTENCES[state.p2index] +
+      (state.p2score != null ? "\nĐiểm phát âm ước tính: " + state.p2score + "%" : "");
+    sendToTelegram(state.p2blob, caption, document.getElementById("p2sendStatus"));
+  });
+
+  /* ================= TAB 3: Q&A ================= */
+  function loadP3(){
+    renderDots("p3dots", QUESTIONS.length, state.p3index);
+    document.getElementById("p3question").textContent = "Bấm \"Nghe câu hỏi\" để nghe câu hỏi số " + (state.p3index+1);
+    document.getElementById("p3expected").textContent = "";
+    document.getElementById("p3status").textContent = "";
+    document.getElementById("p3status").className = "status-line";
+    document.getElementById("p3audio").hidden = true;
+    document.getElementById("p3replay").hidden = true;
+    document.getElementById("p3send").disabled = true;
+    document.getElementById("p3sendStatus").textContent = "";
+    state.p3blob = null; state.p3score = null;
+  }
+  loadP3();
+
+  document.getElementById("p3ask").addEventListener("click", function(){
+    document.getElementById("p3question").textContent = QUESTIONS[state.p3index];
+    speak(QUESTIONS[state.p3index], {lang:"en-US", rate:0.82, pitch:0.72, male:true});
+  });
+
+  document.getElementById("p3record").addEventListener("click", function(){
+    handleRecordToggle({
+      btn: document.getElementById("p3record"),
+      indicator: document.getElementById("p3recInd"),
+      statusEl: document.getElementById("p3status"),
+      audioEl: document.getElementById("p3audio"),
+      replayBtn: document.getElementById("p3replay"),
+      onDone: function(res){
+        state.p3blob = res.blob;
+        var sim = similarity(res.transcript, SENTENCES[state.p3index]);
+        state.p3score = Math.round(sim*100);
+        var lab = scoreLabel(sim);
+        var statusEl = document.getElementById("p3status");
+        if (!res.transcript){
+          statusEl.textContent = "Không nghe rõ, con trả lời to và rõ hơn nhé 🙂";
+          statusEl.className = "status-line no";
+        } else {
+          statusEl.innerHTML = 'Con trả lời: "' + res.transcript + '"<br><span class="score-pill ' + lab.cls + '">' + lab.text + " · " + lab.pct + "%</span>";
+        }
+        document.getElementById("p3send").disabled = false;
+      }
+    });
+  });
+
+  document.getElementById("p3replay").addEventListener("click", function(){
+    document.getElementById("p3audio").play();
+  });
+
+  document.getElementById("p3next").addEventListener("click", function(){
+    state.p3index = (state.p3index + 1) % QUESTIONS.length;
+    loadP3();
+  });
+  document.getElementById("p3send").addEventListener("click", function(){
+    var caption = "Học sinh: " + state.name + "\nLuyện tập 3 - Hỏi & đáp " + (state.p3index+1) + "/" + QUESTIONS.length +
+      "\nCâu hỏi: " + QUESTIONS[state.p3index] +
+      "\nCâu trả lời mong đợi: " + SENTENCES[state.p3index] +
+      (state.p3score != null ? "\nĐiểm phát âm ước tính: " + state.p3score + "%" : "");
+    sendToTelegram(state.p3blob, caption, document.getElementById("p3sendStatus"));
+  });
+
+})();
+</script>
+</body>
+</html>
