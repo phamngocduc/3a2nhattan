@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Hành Trình Tìm Kho Báu - Bảng Nhân Chia 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --yellow:#FFCC33; --green:#4CAF7D; --blue:#3E8EDE; --orange:#FF9F40; --red:#E8524B;
+  --paper:#FBF3E3; --paper2:#FDF9F0; --ink:#3A2E22; --accent:#1E88E5; --accent2:#F4511E;
+  --panel-radius:26px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Quicksand',sans-serif;
+  background:linear-gradient(160deg,#FDEFC7 0%,#F7E1B5 35%,#EAD3A0 100%);
+  color:var(--ink);
+  min-height:100vh;
+  -webkit-user-select:none;user-select:none;
+  -webkit-touch-callout:none;
+  padding-bottom:40px;
+}
+h1,h2,h3,.title-font{font-family:'Baloo 2',cursive;}
+img{-webkit-user-drag:none;user-drag:none;pointer-events:none;}
+
+/* ============ START SCREEN ============ */
+#startScreen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 30% 20%, #FFE9A8 0%, #F5D68B 40%, #E3B96C 100%);
+  padding:20px;
+}
+.start-card{
+  background:var(--paper2);
+  border-radius:32px;
+  padding:36px 32px;
+  max-width:480px;width:100%;
+  box-shadow:0 20px 50px rgba(120,80,20,0.35), 0 0 0 6px #fff inset;
+  text-align:center;
+  border:4px dashed #D6A24B;
+  animation:popIn .6s ease;
+}
+@keyframes popIn{0%{transform:scale(.85);opacity:0;}100%{transform:scale(1);opacity:1;}}
+.start-card .emoji-row{font-size:48px;margin-bottom:6px;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.start-card h1{font-size:28px;color:var(--accent2);margin:6px 0 4px;line-height:1.25;}
+.start-card p.sub{color:#8a6f3f;font-size:15px;margin:0 0 22px;}
+.field{text-align:left;margin-bottom:16px;}
+.field label{display:block;font-weight:700;margin-bottom:6px;font-size:15px;color:var(--ink);}
+.field input{
+  width:100%;padding:13px 16px;border-radius:16px;border:3px solid #E4C48A;
+  font-family:'Quicksand',sans-serif;font-size:16px;background:#fff;
+  outline:none;transition:.2s;-webkit-user-select:text;user-select:text;
+}
+.field input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(30,136,229,.15);}
+.btn-start{
+  margin-top:8px;width:100%;padding:16px;border:none;border-radius:18px;
+  background:linear-gradient(135deg,#FFB74D,#FF7043);color:#fff;font-family:'Baloo 2';
+  font-size:20px;font-weight:700;cursor:pointer;box-shadow:0 8px 0 #C9451F, 0 12px 20px rgba(0,0,0,.2);
+  transition:.1s;letter-spacing:.5px;
+}
+.btn-start:active{transform:translateY(6px);box-shadow:0 2px 0 #C9451F;}
+.hint-err{color:#D32F2F;font-size:13px;margin-top:-8px;margin-bottom:10px;min-height:16px;font-weight:700;}
+
+/* ============ APP LAYOUT ============ */
+#app{display:none;max-width:980px;margin:0 auto;padding:0 12px;}
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:linear-gradient(135deg,#2E5C8A,#1B3B5F);
+  color:#fff;border-radius:0 0 24px 24px;
+  padding:12px 16px;margin-bottom:14px;
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;
+  box-shadow:0 8px 20px rgba(0,0,0,.25);
+}
+.topbar .brand{display:flex;align-items:center;gap:10px;}
+.topbar .brand .rb{font-size:30px;}
+.topbar .brand-text{line-height:1.15;}
+.topbar .brand-text b{font-family:'Baloo 2';font-size:16px;display:block;}
+.topbar .brand-text span{font-size:11px;opacity:.85;}
+.stat-pills{display:flex;gap:8px;flex-wrap:wrap;}
+.pill{
+  background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);
+  border-radius:14px;padding:7px 12px;font-size:13px;font-weight:700;
+  display:flex;align-items:center;gap:6px;
+}
+.pill b{font-family:'Baloo 2';font-size:15px;color:#FFD54F;}
+#totalScoreVal{color:#FFEB3B;}
+
+/* nav tabs */
+.tabnav{display:flex;gap:8px;overflow-x:auto;padding:6px 2px 14px;scrollbar-width:thin;}
+.tabnav button{
+  flex:0 0 auto;border:none;border-radius:16px;padding:10px 16px;
+  font-family:'Baloo 2';font-size:15px;font-weight:700;cursor:pointer;
+  background:#fff;color:#8a6f3f;border:2px solid #E4C48A;transition:.15s;white-space:nowrap;
+}
+.tabnav button.active{background:linear-gradient(135deg,#42A5F5,#1E88E5);color:#fff;border-color:#1E88E5;transform:translateY(-2px);box-shadow:0 6px 0 #1259A0;}
+.tabnav button .badgedot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#4CAF7D;margin-left:6px;vertical-align:middle;}
+
+.section{display:none;animation:fadeIn .35s ease;}
+.section.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+.panel{
+  background:var(--paper2);border-radius:var(--panel-radius);
+  padding:20px;margin-bottom:20px;
+  border:3px solid #E9CE9B;box-shadow:0 10px 24px rgba(120,90,30,.12);
+  position:relative;overflow:hidden;
+}
+.panel-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.panel-head .num{
+  background:linear-gradient(135deg,#FFD54F,#FFA726);color:#7a4600;
+  width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:'Baloo 2';font-weight:800;font-size:17px;box-shadow:0 3px 0 #C97E1F;flex:0 0 auto;
+}
+.panel-head h2{margin:0;font-size:20px;color:#2E5C8A;flex:1;}
+.panel-score{
+  margin-left:auto;background:#EEF6EA;border:2px solid #B7DDB0;border-radius:14px;
+  padding:6px 12px;font-weight:700;color:#2E7D32;font-size:14px;
+}
+.instructions{background:#FFF7E3;border-left:5px solid #FFB74D;border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:14.5px;line-height:1.55;}
+.instructions b{color:#D2691E;}
+
+/* palette */
+.palette{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
+.swatch{
+  display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:14px;cursor:pointer;
+  border:3px solid transparent;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.08);font-weight:700;font-size:13.5px;
+  transition:.15s;
+}
+.swatch .dot{width:22px;height:22px;border-radius:50%;border:2px solid rgba(0,0,0,.15);}
+.swatch.selected{border-color:var(--accent);transform:translateY(-3px) scale(1.05);box-shadow:0 6px 14px rgba(30,136,229,.35);}
+
+/* puzzle grid (bai1/bai3) */
+.puzzle-wrap{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;}
+.puzzle-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;flex:1;min-width:260px;
+}
+.piece{
+  aspect-ratio:1/0.85;background:#fff;border:3px solid #DCC79A;
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  font-family:'Baloo 2';font-weight:700;font-size:15px;cursor:pointer;
+  border-radius:38% 62% 55% 45%/48% 40% 60% 52%;
+  transition:.2s;position:relative;padding:4px;color:#5a4a30;
+}
+.piece:nth-child(3n){border-radius:55% 45% 40% 60%/45% 55% 45% 55%;}
+.piece:nth-child(4n){border-radius:45% 55% 60% 40%/55% 45% 55% 45%;}
+.piece:hover{transform:scale(1.05);}
+.piece.given{background:repeating-linear-gradient(45deg,#fff,#fff 6px,#f4ecd6 6px,#f4ecd6 12px);cursor:default;}
+.piece .mark{position:absolute;top:2px;right:6px;font-size:16px;}
+.piece.correct{outline:4px solid #2E7D32;}
+.piece.wrong{outline:4px solid #C62828;}
+.center-icon{
+  flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-width:140px;padding:20px;
+}
+.center-icon .icon{font-size:70px;filter:drop-shadow(0 6px 6px rgba(0,0,0,.25));}
+.center-icon .icon.blink{animation:blinkKey 1s infinite;}
+@keyframes blinkKey{0%,100%{opacity:1;transform:scale(1) rotate(0deg);}50%{opacity:.4;transform:scale(1.25) rotate(-8deg);}}
+.center-icon p{font-size:13px;text-align:center;color:#8a6f3f;font-weight:700;margin-top:8px;}
+
+/* legend chips */
+.legend-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 16px;}
+.legend-chip{display:flex;align-items:center;gap:6px;background:#fff;border:2px solid #E4C48A;border-radius:12px;padding:5px 10px;font-size:12.5px;font-weight:700;}
+.legend-chip .dot{width:16px;height:16px;border-radius:50%;}
+
+.btn-grade{
+  border:none;border-radius:16px;padding:13px 22px;font-family:'Baloo 2';font-weight:700;font-size:16px;
+  background:linear-gradient(135deg,#66BB6A,#2E7D32);color:#fff;cursor:pointer;
+  box-shadow:0 6px 0 #1B5E20;transition:.1s;margin-top:6px;
+}
+.btn-grade:active{transform:translateY(6px);box-shadow:0 0 0 #1B5E20;}
+.result-msg{margin-top:12px;font-weight:700;font-size:14.5px;padding:10px 14px;border-radius:12px;display:none;}
+.result-msg.show{display:block;animation:fadeIn .3s;}
+.result-msg.good{background:#E8F5E9;color:#2E7D32;border:2px solid #A5D6A7;}
+.result-msg.mid{background:#FFF3E0;color:#E65100;border:2px solid #FFCC80;}
+
+/* Bai2 */
+.code-table{width:100%;border-collapse:collapse;margin-bottom:16px;text-align:center;overflow-x:auto;display:block;}
+.code-table table{width:100%;border-collapse:collapse;}
+.code-table td,.code-table th{border:2px solid #E4C48A;padding:8px 6px;font-family:'Baloo 2';font-size:16px;background:#fff;}
+.code-table th{background:#2E5C8A;color:#fff;}
+.code-table td.letter{color:#D2691E;font-size:20px;}
+.q-row{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:18px;}
+.q-item{background:#fff;border:2px solid #E4C48A;border-radius:14px;padding:10px 14px;flex:1 1 130px;text-align:center;}
+.q-item .expr{font-family:'Baloo 2';font-size:17px;margin-bottom:8px;}
+.q-item.correct{border-color:#2E7D32;background:#F1F8F1;}
+.q-item.wrong{border-color:#C62828;background:#FDEDED;}
+.slot.mini{width:50px;height:50px;font-size:22px;margin:0 auto;}
+
+.tilebank{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;padding:14px;background:#EFE3C6;border-radius:16px;min-height:70px;}
+.tile{
+  width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,#FFD54F,#FFA726);
+  display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-size:24px;font-weight:800;
+  cursor:grab;color:#7a4600;box-shadow:0 4px 0 #C97E1F;user-select:none;transition:.15s;
+}
+.tile.used{opacity:.25;pointer-events:none;}
+.tile.selected{outline:4px solid #1E88E5;transform:scale(1.08);}
+.slots-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.slot{
+  width:56px;height:56px;border-radius:12px;background:#fff;border:3px dashed #B79A5C;
+  display:flex;align-items:center;justify-content:center;font-family:'Baloo 2';font-size:24px;font-weight:800;color:#2E5C8A;
+}
+.slot.filled{border-style:solid;background:#FFF7E3;}
+.slot.correct{border-color:#2E7D32;background:#E8F5E9;}
+.slot.wrong{border-color:#C62828;background:#FDEDED;}
+.answer-phrase{text-align:center;font-family:'Baloo 2';font-size:22px;color:#D2691E;letter-spacing:3px;margin-top:6px;min-height:30px;}
+
+/* Bai4 footprints */
+.footpath{display:flex;flex-direction:column;gap:0;margin-bottom:16px;position:relative;padding:10px;}
+.fp-row{display:flex;flex-wrap:wrap;gap:30px;justify-content:center;width:100%;position:relative;}
+.footprint{
+  width:82px;height:96px;background:#fff;border:3px solid #DCC79A;border-radius:50% 50% 45% 45%/60% 60% 40% 40%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;
+  font-family:'Baloo 2';font-weight:700;font-size:14px;position:relative;transition:.15s;
+}
+.footprint .toes{font-size:11px;opacity:.5;margin-bottom:2px;}
+.footprint.selected{background:#C8E6C9;border-color:#2E7D32;transform:scale(1.06);}
+.footprint.correct{outline:4px solid #2E7D32;}
+.footprint.wrong{outline:4px solid #C62828;}
+/* đường nối cong nét đứt giữa các dấu chân trong cùng hàng */
+.footprint:not(:first-child)::before{
+  content:'';
+  position:absolute;
+  left:-30px; top:38%;
+  width:30px; height:22px;
+  border-top:3px dashed #B79A5C;
+  border-radius:50%;
+  pointer-events:none;
+}
+.row-connector{width:100%;height:34px;margin:-6px 0;display:flex;justify-content:center;}
+.row-connector svg{width:180px;height:34px;overflow:visible;}
+.robot-track{position:relative;height:60px;margin:10px 0 4px;}
+#robotIcon{position:absolute;left:0;top:0;font-size:40px;transition:left 1s ease, top 1s ease, transform .3s ease;z-index:5;}
+.sign{display:inline-flex;align-items:center;gap:6px;background:#5D4037;color:#fff;padding:10px 16px;border-radius:10px;font-family:'Baloo 2';font-weight:700;}
+
+/* Bai5 */
+textarea#giaibai5{
+  width:100%;min-height:110px;border-radius:14px;border:3px solid #E4C48A;padding:12px;font-size:15px;
+  font-family:'Quicksand';resize:vertical;-webkit-user-select:text;user-select:text;
+}
+.answer-box{
+  display:inline-flex;align-items:center;gap:10px;margin-top:14px;background:#fff;border:3px solid #B79A5C;
+  border-radius:14px;padding:10px 16px;
+}
+.answer-box input{width:90px;padding:8px;border-radius:10px;border:2px solid #cbb37e;font-size:18px;font-weight:800;text-align:center;-webkit-user-select:text;user-select:text;}
+.chest-wrap{text-align:center;margin:10px 0;}
+.chest-icon{font-size:90px;transition:.4s;filter:drop-shadow(0 8px 10px rgba(0,0,0,.3));}
+.chest-icon.open{animation:chestPop .6s ease;}
+@keyframes chestPop{0%{transform:scale(1) rotate(0);}30%{transform:scale(1.3) rotate(-8deg);}60%{transform:scale(1.15) rotate(6deg);}100%{transform:scale(1.2) rotate(0);}}
+.mystery-lock{margin-top:6px;font-size:13px;color:#8a6f3f;font-weight:700;}
+
+/* summary */
+.badge-grid{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:10px;}
+.badge{
+  width:120px;text-align:center;background:#fff;border:3px solid #E4C48A;border-radius:18px;padding:14px 8px;
+  opacity:.4;filter:grayscale(1);transition:.4s;
+}
+.badge.unlocked{opacity:1;filter:grayscale(0);border-color:#FFD54F;box-shadow:0 8px 16px rgba(255,193,7,.35);transform:translateY(-4px);}
+.badge .bicon{font-size:38px;}
+.badge .bname{font-size:12px;font-weight:700;margin-top:6px;color:#5a4a30;}
+.final-total{
+  text-align:center;background:linear-gradient(135deg,#2E5C8A,#1B3B5F);color:#fff;border-radius:22px;
+  padding:26px;margin-top:16px;
+}
+.final-total .num{font-family:'Baloo 2';font-size:44px;color:#FFD54F;}
+.final-total .lbl{font-size:14px;opacity:.85;}
+.confetti-piece{position:fixed;top:-20px;z-index:999;pointer-events:none;border-radius:2px;}
+
+footer.credit{
+  text-align:center;margin:30px auto 10px;padding:16px;font-size:13px;color:#7a5c30;font-weight:700;
+  max-width:600px;
+}
+
+@media(max-width:700px){
+  .puzzle-grid{grid-template-columns:repeat(3,1fr);}
+  .puzzle-wrap{flex-direction:column;}
+  .center-icon{width:100%;}
+  .topbar{border-radius:0 0 18px 18px;padding:10px 12px;}
+  .topbar .brand-text b{font-size:14px;}
+  .panel{padding:14px;border-radius:20px;}
+  .panel-head h2{font-size:17px;}
+  .footprint{width:70px;height:82px;font-size:12px;}
+  .start-card{padding:26px 20px;}
+  .start-card h1{font-size:22px;}
+}
+@media(max-width:420px){
+  .puzzle-grid{grid-template-columns:repeat(3,1fr);gap:7px;}
+  .piece{font-size:12.5px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= START SCREEN ================= -->
+<div id="startScreen">
+  <div class="start-card">
+    <div class="emoji-row">🤖🗺️🏆</div>
+    <h1>HÀNH TRÌNH TÌM KHO BÁU</h1>
+    <p class="sub">Bảng Nhân – Chia 5 &nbsp;•&nbsp; Cùng Robot 5 khám phá kho báu bí ẩn!</p>
+    <div class="field">
+      <label for="stuName">👦 Họ và tên học sinh</label>
+      <input type="text" id="stuName" placeholder="Nhập họ và tên...">
+    </div>
+    <div class="field">
+      <label for="stuClass">🏫 Lớp</label>
+      <input type="text" id="stuClass" placeholder="Ví dụ: 3A1">
+    </div>
+    <div class="hint-err" id="startErr"></div>
+    <button class="btn-start" id="btnStart">🚀 BẮT ĐẦU HÀNH TRÌNH</button>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="rb">🤖</div>
+      <div class="brand-text">
+        <b>HÀNH TRÌNH TÌM KHO BÁU</b>
+        <span id="whoDisplay">—</span>
+      </div>
+    </div>
+    <div class="stat-pills">
+      <div class="pill">⏱ <b id="timerVal">00:00</b></div>
+      <div class="pill">⭐ <b id="totalScoreVal">0</b>/<span id="totalMaxVal">48</span></div>
+    </div>
+  </div>
+
+  <div class="tabnav" id="tabnav">
+    <button class="tab-btn active" data-tab="tab1">Bài 1<span class="badgedot" id="dot1" style="display:none"></span></button>
+    <button class="tab-btn" data-tab="tab2">Bài 2<span class="badgedot" id="dot2" style="display:none"></span></button>
+    <button class="tab-btn" data-tab="tab3">Bài 3<span class="badgedot" id="dot3" style="display:none"></span></button>
+    <button class="tab-btn" data-tab="tab4">Bài 4<span class="badgedot" id="dot4" style="display:none"></span></button>
+    <button class="tab-btn" data-tab="tab5">Bài 5<span class="badgedot" id="dot5" style="display:none"></span></button>
+    <button class="tab-btn" data-tab="tab6">🏆 Tổng kết</button>
+  </div>
+
+  <!-- ============ BAI 1 ============ -->
+  <section class="section active" id="tab1">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="num">1</div>
+        <h2>⭐ TÔ MÀU THEO KẾT QUẢ</h2>
+        <div class="panel-score">Điểm: <span id="scoreBai1">0</span>/13</div>
+      </div>
+      <div class="instructions">Hãy <b>tính kết quả</b> mỗi phép tính trong bức tranh, chọn <b>màu tương ứng</b> ở bảng bên dưới rồi bấm vào từng ô để tô màu. Tô đúng hết <b>13 ô</b>, chiếc chìa khóa sẽ lấp lánh xuất hiện!</div>
+      <div class="legend-row" id="legend1"></div>
+      <div class="palette" id="palette1"></div>
+      <div class="puzzle-wrap">
+        <div class="puzzle-grid" id="grid1"></div>
+        <div class="center-icon">
+          <div class="icon" id="keyIcon">🔑</div>
+          <p>Chiếc chìa khóa mở kho báu</p>
+        </div>
+      </div>
+      <button class="btn-grade" onclick="gradeBai1()">✅ CHẤM ĐIỂM BÀI 1</button>
+      <div class="result-msg" id="resultBai1"></div>
+    </div>
+  </section>
+
+  <!-- ============ BAI 2 ============ -->
+  <section class="section" id="tab2">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="num">2</div>
+        <h2>⭐ GIẢI MÃ KHO BÁU</h2>
+        <div class="panel-score">Điểm: <span id="scoreBai2">0</span>/10</div>
+      </div>
+      <div class="instructions">Robot 5 nhặt được mảnh giấy ghi mật mã! Hãy <b>tính nhẩm kết quả</b> mỗi phép chia, tra <b>Bảng mật mã</b> để tìm chữ cái tương ứng, rồi <b>kéo (hoặc chạm)</b> đúng thẻ chữ đó thả vào ô bên dưới mỗi phép tính.</div>
+      <div class="code-table">
+        <table>
+          <tr><th>Kết quả</th><td>8</td><td>4</td><td>6</td><td>5</td><td>3</td></tr>
+          <tr><th>Chữ</th><td class="letter">L</td><td class="letter">N</td><td class="letter">Ố</td><td class="letter">C</td><td class="letter">Ê</td></tr>
+        </table>
+      </div>
+      <p style="font-size:13px;color:#8a6f3f;margin:0 0 6px;">👉 Chạm 1 thẻ chữ bên dưới, rồi chạm vào ô trống ứng với phép tính để đặt vào (hoặc kéo-thả trên máy tính).</p>
+      <div class="tilebank" id="tilebank2"></div>
+      <div class="q-row" id="qrow2"></div>
+      <div class="answer-phrase" id="phrase2"></div>
+      <button class="btn-grade" onclick="gradeBai2()">✅ CHẤM ĐIỂM BÀI 2</button>
+      <div class="result-msg" id="resultBai2"></div>
+    </div>
+  </section>
+
+  <!-- ============ BAI 3 ============ -->
+  <section class="section" id="tab3">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="num">3</div>
+        <h2>⭐ TÔ ĐỂ MỞ KHÓA</h2>
+        <div class="panel-score">Điểm: <span id="scoreBai3">0</span>/11</div>
+      </div>
+      <div class="instructions">Chiếc chìa khóa đã mở chiếc hộp bí mật! Hãy tính các phép tính trong bức tranh rồi tô màu theo quy định để làm hiện bản đồ kho báu. Tô đúng hết <b>11 ô</b>, rương kho báu sẽ mở ra! <b>Lưu ý:</b> nếu kết quả không khớp với màu nào trong bảng, hãy chọn 🚫 <b>Không tô</b> (để trống ô đó).</div>
+      <div class="legend-row" id="legend3"></div>
+      <div class="palette" id="palette3"></div>
+      <div class="puzzle-wrap">
+        <div class="puzzle-grid" id="grid3"></div>
+        <div class="center-icon">
+          <div class="icon" id="mapIcon">🗺️</div>
+          <p>Bản đồ kho báu</p>
+        </div>
+      </div>
+      <button class="btn-grade" onclick="gradeBai3()">✅ CHẤM ĐIỂM BÀI 3</button>
+      <div class="result-msg" id="resultBai3"></div>
+    </div>
+  </section>
+
+  <!-- ============ BAI 4 ============ -->
+  <section class="section" id="tab4">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="num">4</div>
+        <h2>⭐ DẤU CHÂN KHO BÁU</h2>
+        <div class="panel-score">Điểm: <span id="scoreBai4">0</span>/4</div>
+      </div>
+      <div class="instructions">Hãy tính các phép tính trên từng dấu chân. Chỉ chạm chọn (tô màu) những dấu chân có <b>kết quả thuộc bảng nhân 5</b> (chữ số tận cùng là 0 hoặc 5). Các dấu chân đúng sẽ tạo thành con đường đưa Robot đến kho báu!</div>
+      <div class="robot-track" id="robotTrack">
+        <span id="robotIcon">🤖</span>
+      </div>
+      <div class="footpath" id="footpath4"></div>
+      <div style="text-align:center;margin:10px 0;"><span class="sign">🚩 KHO BÁU</span></div>
+      <div class="instructions" style="background:#F1F8F1;border-left-color:#66BB6A;">💡 <b>Mẹo nhỏ:</b> Các kết quả trong bảng nhân 5 đều có chữ số tận cùng là 0 hoặc 5.</div>
+      <button class="btn-grade" onclick="gradeBai4()">✅ CHẤM ĐIỂM BÀI 4</button>
+      <div class="result-msg" id="resultBai4"></div>
+    </div>
+  </section>
+
+  <!-- ============ BAI 5 ============ -->
+  <section class="section" id="tab5">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="num">5</div>
+        <h2>⭐ MỞ RƯƠNG KHO BÁU 🔒</h2>
+        <div class="panel-score">Điểm: <span id="scoreBai5">0</span>/10</div>
+      </div>
+      <div class="instructions">Chỉ còn một thử thách cuối cùng! Robot tìm thấy <b>9 túi kim cương</b>, mỗi túi có <b>5 viên kim cương</b>. Hỏi Robot có tất cả bao nhiêu viên kim cương?</div>
+      <label style="font-weight:700;display:block;margin-bottom:6px;">✏️ Bài giải:</label>
+      <textarea id="giaibai5" placeholder="Viết bài giải của em vào đây..."></textarea>
+      <div class="answer-box">
+        <span style="font-weight:700;">Đáp số:</span>
+        <input type="text" id="dapso5" placeholder="?">
+        <span>viên kim cương</span>
+      </div>
+      <div class="chest-wrap">
+        <div class="chest-icon" id="chestIcon">🧰</div>
+        <div class="mystery-lock" id="lockMsg">Đáp số chính là mật mã mở rương kho báu!</div>
+      </div>
+      <div style="text-align:center;">
+        <button class="btn-grade" onclick="gradeBai5()">✅ CHẤM BÀI 5</button>
+      </div>
+      <div class="result-msg" id="resultBai5"></div>
+    </div>
+  </section>
+
+  <!-- ============ TAB 6: TONG KET ============ -->
+  <section class="section" id="tab6">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="num">🏆</div>
+        <h2>HUY HIỆU NHÀ KHÁM PHÁ</h2>
+      </div>
+      <div class="badge-grid">
+        <div class="badge" id="badge1"><div class="bicon">🔑</div><div class="bname">Người tìm chìa khóa</div></div>
+        <div class="badge" id="badge2"><div class="bicon">🔍</div><div class="bname">Thám tử bảng 5</div></div>
+        <div class="badge" id="badge3"><div class="bicon">🗺️</div><div class="bname">Nhà khám phá kho báu</div></div>
+        <div class="badge" id="badge4"><div class="bicon">🏆</div><div class="bname">Siêu cao thủ bảng 5</div></div>
+      </div>
+      <div class="final-total">
+        <div class="lbl">TỔNG ĐIỂM ĐẠT ĐƯỢC</div>
+        <div class="num"><span id="finalScore">0</span>/48</div>
+        <div class="lbl" id="finalTimeLbl" style="margin-top:8px;">Thời gian làm bài: 00:00</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="credit">Designed by Thầy Phạm Ngọc Đức (Bố Trân Trà) 📞 0961366868</footer>
+</div>
+
+<script>
+/* ================= BẢO VỆ MÃ NGUỒN (best-effort) ================= */
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('selectstart', e => e.preventDefault());
+document.addEventListener('dragstart', e => e.preventDefault());
+document.addEventListener('keydown', function(e){
+  if(e.key === 'F12') e.preventDefault();
+  if(e.ctrlKey && e.shiftKey && ['I','J','C','K'].includes(e.key.toUpperCase())) e.preventDefault();
+  if(e.ctrlKey && ['u','U','s','S'].includes(e.key)) e.preventDefault();
+});
+
+/* ================= ÂM THANH (Web Audio API) ================= */
+let audioCtx;
+function getCtx(){ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+function tone(freq, start, dur, type='sine', vol=0.18){
+  const ctx = getCtx();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type; osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0, ctx.currentTime+start);
+  gain.gain.linearRampToValueAtTime(vol, ctx.currentTime+start+0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+start+dur);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(ctx.currentTime+start); osc.stop(ctx.currentTime+start+dur+0.05);
+}
+function playClick(){ tone(700,0,0.08,'square',0.08); }
+function playCorrect(){ [523,659,784].forEach((f,i)=>tone(f,i*0.09,0.18,'triangle',0.15)); }
+function playWrong(){ tone(180,0,0.25,'sawtooth',0.12); tone(140,0.08,0.25,'sawtooth',0.1); }
+function playCoin(){ tone(988,0,0.09,'square',0.12); tone(1319,0.07,0.15,'square',0.12); }
+function playFanfare(){
+  [523,523,523,659,784,1047].forEach((f,i)=>tone(f,i*0.14,0.22,'triangle',0.16));
+}
+function playApplause(){
+  const ctx = getCtx();
+  for(let i=0;i<26;i++){
+    const t = Math.random()*1.6;
+    const bufSize = ctx.sampleRate*0.04;
+    const buf = ctx.createBuffer(1,bufSize,ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for(let j=0;j<bufSize;j++) data[j] = (Math.random()*2-1)*0.3;
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const g = ctx.createGain(); g.gain.value = 0.12 + Math.random()*0.08;
+    src.connect(g).connect(ctx.destination);
+    src.start(ctx.currentTime + t);
+  }
+}
+function playUnlock(){ tone(400,0,0.1,'square',0.1); tone(600,0.1,0.1,'square',0.1); tone(900,0.2,0.3,'triangle',0.15); }
+
+/* ================= CONFETTI ================= */
+function launchConfetti(n=60){
+  const colors=['#FFCC33','#4CAF7D','#3E8EDE','#FF9F40','#E8524B'];
+  for(let i=0;i<n;i++){
+    const el = document.createElement('div');
+    el.className='confetti-piece';
+    const size = 6+Math.random()*7;
+    el.style.width=size+'px'; el.style.height=size*0.6+'px';
+    el.style.background = colors[Math.floor(Math.random()*colors.length)];
+    el.style.left = Math.random()*100+'vw';
+    el.style.opacity = 1;
+    el.style.transform = `rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(el);
+    const duration = 1800+Math.random()*1400;
+    const drift = (Math.random()-0.5)*200;
+    el.animate([
+      {transform:`translate(0,0) rotate(0deg)`, opacity:1},
+      {transform:`translate(${drift}px, 100vh) rotate(${360+Math.random()*360}deg)`, opacity:0.9}
+    ],{duration, easing:'ease-in'});
+    setTimeout(()=>el.remove(), duration+100);
+  }
+}
+
+/* ================= TIMER ================= */
+let seconds = 0, timerInterval = null;
+function startTimer(){
+  timerInterval = setInterval(()=>{
+    seconds++;
+    const m = String(Math.floor(seconds/60)).padStart(2,'0');
+    const s = String(seconds%60).padStart(2,'0');
+    document.getElementById('timerVal').textContent = m+':'+s;
+  },1000);
+}
+function stopTimer(){ clearInterval(timerInterval); }
+
+/* ================= START ================= */
+document.getElementById('btnStart').addEventListener('click', ()=>{
+  const name = document.getElementById('stuName').value.trim();
+  const cls = document.getElementById('stuClass').value.trim();
+  const err = document.getElementById('startErr');
+  if(!name || !cls){ err.textContent = '⚠️ Em hãy nhập đầy đủ họ tên và lớp nhé!'; return; }
+  err.textContent='';
+  document.getElementById('whoDisplay').textContent = name+' • Lớp '+cls;
+  document.getElementById('startScreen').style.display='none';
+  document.getElementById('app').style.display='block';
+  playCoin();
+  startTimer();
+  buildAll();
+});
+
+/* ================= TAB NAV ================= */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    playClick();
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ================= SCORE STATE ================= */
+const scores = {1:0,2:0,3:0,4:0,5:0};
+const maxScores = {1:13,2:10,3:11,4:4,5:10};
+function updateTotal(){
+  const total = Object.values(scores).reduce((a,b)=>a+b,0);
+  document.getElementById('totalScoreVal').textContent = total;
+  document.getElementById('finalScore').textContent = total;
+  const m = String(Math.floor(seconds/60)).padStart(2,'0');
+  const s = String(seconds%60).padStart(2,'0');
+  document.getElementById('finalTimeLbl').textContent = 'Thời gian làm bài: '+m+':'+s;
+  updateBadges(total);
+  if(total >= 48){ stopTimer(); }
+}
+function setScore(bai, val){
+  scores[bai] = val;
+  document.getElementById('scoreBai'+bai).textContent = val;
+  const dot = document.getElementById('dot'+bai);
+  if(val >= maxScores[bai]){ dot.style.display='inline-block'; } 
+  updateTotal();
+}
+function updateBadges(total){
+  document.getElementById('badge1').classList.toggle('unlocked', scores[1] >= maxScores[1]);
+  document.getElementById('badge2').classList.toggle('unlocked', scores[2] >= maxScores[2]);
+  document.getElementById('badge3').classList.toggle('unlocked', scores[3] >= maxScores[3] && scores[4] >= maxScores[4]);
+  document.getElementById('badge4').classList.toggle('unlocked', total >= 48);
+}
+
+/* ================= COLOR DEFS ================= */
+const COLORS = {
+  yellow:{hex:'#FFCC33', label:'Vàng'},
+  green:{hex:'#4CAF7D', label:'Xanh lá'},
+  blue:{hex:'#3E8EDE', label:'Xanh dương'},
+  orange:{hex:'#FF9F40', label:'Cam'},
+  red:{hex:'#E8524B', label:'Đỏ'}
+};
+
+/* ================= BAI 1 DATA ================= */
+const bai1Data = [
+  {expr:'5 × 2', val:10, color:'green'},
+  {expr:'25 : 5', val:5,  color:'yellow'},
+  {expr:'5 × 3', val:15, color:'blue'},
+  {expr:'20 : 4', val:5,  color:'yellow'},
+  {expr:'5', val:5, color:'yellow', given:true},
+  {expr:'10 × 1', val:10, color:'green'},
+  {expr:'5 × 4', val:20, color:'orange'},
+  {expr:'5 × 5', val:25, color:'red'},
+  {expr:'4 × 5', val:20, color:'orange'},
+  {expr:'25 : 5', val:5, color:'yellow'},
+  {expr:'15 : 3', val:5, color:'yellow'},
+  {expr:'3 × 5', val:15, color:'blue'},
+  {expr:'10 : 2', val:5, color:'yellow'}
+];
+const legend1Info = [
+  {result:'5', color:'yellow'},{result:'10', color:'green'},{result:'15', color:'blue'},
+  {result:'20', color:'orange'},{result:'25', color:'red'}
+];
+
+/* ================= BAI 3 DATA ================= */
+/* Thứ tự đúng theo yêu cầu: trái→phải, trên→dưới.
+   Một số phép chia (kết quả không phải 5,10,15,...,50) không khớp màu nào
+   trong bảng chú giải -> ô đó đáp án đúng là "để trống, không tô". */
+const bai3Data = [
+  {expr:'5 × 2', val:10, color:'yellow'},
+  {expr:'30 : 5', val:6,  color:null},
+  {expr:'8 × 5', val:40, color:'red'},
+  {expr:'50 : 5', val:10, color:'yellow'},
+  {expr:'20 : 5', val:4,  color:null},
+  {expr:'35 : 5', val:7,  color:null},
+  {expr:'25 × 1', val:25, color:'green'},
+  {expr:'45 : 5', val:9,  color:null},
+  {expr:'15 : 3', val:5,  color:'yellow'},
+  {expr:'10 × 3', val:30, color:'green'},
+  {expr:'40 : 5', val:8,  color:null}
+];
+const legend3Info = [
+  {result:'5, 10', color:'yellow'},{result:'15, 20', color:'blue'},{result:'25, 30', color:'green'},
+  {result:'35, 40', color:'red'},{result:'45, 50', color:'orange'}
+];
+
+/* ================= BAI 4 DATA ================= */
+const bai4Data = [
+  {expr:'5 × 6', val:30, correct:true},
+  {expr:'18 : 5', val:3.6, correct:false},
+  {expr:'25 : 5', val:5, correct:false},
+  {expr:'7 × 5', val:35, correct:true},
+  {expr:'32 : 5', val:6.4, correct:false},
+  {expr:'5 × 4', val:20, correct:true},
+  {expr:'16 : 2', val:8, correct:false},
+  {expr:'5 × 9', val:45, correct:true},
+  {expr:'45 : 5', val:9, correct:false},
+  {expr:'10 × 3', val:30, correct:false}
+];
+
+/* ================= BUILD BAI 1 & 3 (puzzle pieces) ================= */
+function buildPuzzle(gridId, paletteId, legendId, data, legendInfo, activeColorSetter, withEraser){
+  const grid = document.getElementById(gridId);
+  const palette = document.getElementById(paletteId);
+  const legend = document.getElementById(legendId);
+  legend.innerHTML = legendInfo.map(l=>`<div class="legend-chip"><span class="dot" style="background:${COLORS[l.color].hex}"></span>Kết quả ${l.result} → ${COLORS[l.color].label}</div>`).join('');
+  if(withEraser){
+    legend.innerHTML += `<div class="legend-chip"><span class="dot" style="background:#fff;border:2px dashed #999"></span>Kết quả khác → Để trống (không tô)</div>`;
+  }
+  palette.innerHTML = Object.keys(COLORS).map(c=>`<div class="swatch" data-color="${c}"><span class="dot" style="background:${COLORS[c].hex}"></span>${COLORS[c].label}</div>`).join('');
+  if(withEraser){
+    palette.innerHTML += `<div class="swatch" data-color="none"><span class="dot" style="background:#fff;border:2px dashed #999"></span>🚫 Không tô</div>`;
+  }
+  palette.querySelectorAll('.swatch').forEach(sw=>{
+    sw.addEventListener('click', ()=>{
+      playClick();
+      palette.querySelectorAll('.swatch').forEach(s=>s.classList.remove('selected'));
+      sw.classList.add('selected');
+      activeColorSetter(sw.dataset.color);
+    });
+  });
+  grid.innerHTML='';
+  data.forEach((d,i)=>{
+    const div = document.createElement('div');
+    div.className = 'piece'+(d.given?' given':'');
+    div.dataset.index = i;
+    div.innerHTML = `<span>${d.expr}</span>`+(d.given?'':'');
+    grid.appendChild(div);
+  });
+  return grid;
+}
+
+function applyColorToPiece(el, colorKey){
+  if(colorKey === 'none'){
+    el.style.background = '#fff';
+    delete el.dataset.picked;
+  } else {
+    el.style.background = COLORS[colorKey].hex;
+    el.dataset.picked = colorKey;
+  }
+  el.classList.remove('correct','wrong');
+}
+
+let activeColor1 = null, activeColor3 = null;
+const grid1El = buildPuzzle('grid1','palette1','legend1', bai1Data, legend1Info, c=>activeColor1=c, false);
+grid1El.querySelectorAll('.piece').forEach((el,i)=>{
+  if(bai1Data[i].given){ el.style.background = COLORS[bai1Data[i].color].hex; el.dataset.picked = bai1Data[i].color; return; }
+  el.addEventListener('click', ()=>{
+    if(!activeColor1){ playWrong(); return; }
+    applyColorToPiece(el, activeColor1);
+    playClick();
+  });
+});
+
+const grid3El = buildPuzzle('grid3','palette3','legend3', bai3Data, legend3Info, c=>activeColor3=c, true);
+grid3El.querySelectorAll('.piece').forEach((el,i)=>{
+  el.addEventListener('click', ()=>{
+    if(!activeColor3){ playWrong(); return; }
+    applyColorToPiece(el, activeColor3);
+    playClick();
+  });
+});
+
+function pieceIsCorrect(el, d){
+  if(d.color === null) return !el.dataset.picked;
+  return el.dataset.picked === d.color;
+}
+
+function gradeBai1(){
+  let correct = 0;
+  const pieces = document.querySelectorAll('#grid1 .piece');
+  pieces.forEach((el,i)=>{
+    const ok = pieceIsCorrect(el, bai1Data[i]);
+    el.classList.remove('correct','wrong');
+    el.classList.add(ok?'correct':'wrong');
+    if(ok) correct++;
+  });
+  setScore(1, correct);
+  const msg = document.getElementById('resultBai1');
+  msg.classList.add('show');
+  if(correct === bai1Data.length){
+    msg.className='result-msg show good';
+    msg.textContent = '🎉 Tuyệt vời! Em đã tô đúng hết '+correct+'/13 ô! Chìa khóa đã xuất hiện!';
+    document.getElementById('keyIcon').classList.add('blink');
+    playFanfare();
+  } else {
+    msg.className='result-msg show mid';
+    msg.textContent = '👍 Em tô đúng '+correct+'/13 ô. Hãy kiểm tra lại các ô viền đỏ nhé!';
+    playWrong();
+  }
+}
+function gradeBai3(){
+  let correct = 0;
+  const pieces = document.querySelectorAll('#grid3 .piece');
+  pieces.forEach((el,i)=>{
+    const ok = pieceIsCorrect(el, bai3Data[i]);
+    el.classList.remove('correct','wrong');
+    el.classList.add(ok?'correct':'wrong');
+    if(ok) correct++;
+  });
+  setScore(3, correct);
+  const msg = document.getElementById('resultBai3');
+  msg.classList.add('show');
+  if(correct === bai3Data.length){
+    msg.className='result-msg show good';
+    msg.textContent = '🎉 Xuất sắc! Bản đồ kho báu đã hiện ra đầy đủ!';
+    document.getElementById('mapIcon').textContent='🧰';
+    document.getElementById('mapIcon').classList.add('blink');
+    playApplause();
+    launchConfetti(50);
+  } else {
+    msg.className='result-msg show mid';
+    msg.textContent = '👍 Em tô đúng '+correct+'/11 ô. Hãy kiểm tra lại các ô viền đỏ nhé!';
+    playWrong();
+  }
+}
+
+/* ================= BAI 2 ================= */
+const bai2Q = [
+  {label:'a) 25 : 5 =', val:5, letter:'C'},
+  {label:'b) 30 : 5 =', val:6, letter:'Ố'},
+  {label:'c) 40 : 5 =', val:8, letter:'L'},
+  {label:'d) 15 : 5 =', val:3, letter:'Ê'},
+  {label:'e) 20 : 5 =', val:4, letter:'N'}
+];
+const correctPhrase = ['C','Ố','L','Ê','N'];
+const tileLetters = ['L','N','Ố','C','Ê']; // theo đúng thứ tự bảng mật mã 8,4,6,5,3
+
+function buildBai2(){
+  const qrow = document.getElementById('qrow2');
+  qrow.innerHTML = bai2Q.map((q,i)=>`
+    <div class="q-item" id="qitem2_${i}">
+      <div class="expr">${q.label}</div>
+      <div class="slot mini" id="slot2_${i}" data-index="${i}"></div>
+    </div>`).join('');
+
+  const bank = document.getElementById('tilebank2');
+  bank.innerHTML = tileLetters.map((l,i)=>`<div class="tile" draggable="true" data-letter="${l}" data-id="t${i}">${l}</div>`).join('');
+
+  let selectedTile = null;
+
+  function refreshPhrase(){
+    let phrase = '';
+    bai2Q.forEach((q,i)=>{
+      const s = document.getElementById('slot2_'+i);
+      phrase += (s.dataset.letter || '_');
+    });
+    document.getElementById('phrase2').textContent = phrase;
+  }
+
+  function placeLetter(tileEl, slotEl){
+    if(slotEl.dataset.letter){ // slot occupied -> free previous tile
+      const prevTileId = slotEl.dataset.tileId;
+      const prevTile = document.querySelector(`.tile[data-id="${prevTileId}"]`);
+      if(prevTile) prevTile.classList.remove('used');
+    }
+    slotEl.dataset.letter = tileEl.dataset.letter;
+    slotEl.dataset.tileId = tileEl.dataset.id;
+    slotEl.textContent = tileEl.dataset.letter;
+    slotEl.classList.add('filled');
+    slotEl.classList.remove('correct','wrong');
+    tileEl.classList.add('used');
+    playClick();
+    refreshPhrase();
+  }
+
+  // click-to-place (mobile-friendly)
+  bank.querySelectorAll('.tile').forEach(tile=>{
+    tile.addEventListener('click', ()=>{
+      if(tile.classList.contains('used')) return;
+      bank.querySelectorAll('.tile').forEach(t=>t.classList.remove('selected'));
+      tile.classList.add('selected');
+      selectedTile = tile;
+      playClick();
+    });
+    tile.addEventListener('dragstart', e=>{
+      e.dataTransfer.setData('text/plain', tile.dataset.id);
+    });
+  });
+  qrow.querySelectorAll('.slot').forEach(slot=>{
+    slot.addEventListener('click', ()=>{
+      if(selectedTile){
+        placeLetter(selectedTile, slot);
+        selectedTile.classList.remove('selected');
+        selectedTile = null;
+      } else if(slot.dataset.letter){
+        // clear slot
+        const prevTile = document.querySelector(`.tile[data-id="${slot.dataset.tileId}"]`);
+        if(prevTile) prevTile.classList.remove('used');
+        slot.dataset.letter=''; slot.dataset.tileId='';
+        slot.textContent=''; slot.classList.remove('filled','correct','wrong');
+        playClick();
+        refreshPhrase();
+      }
+    });
+    slot.addEventListener('dragover', e=> e.preventDefault());
+    slot.addEventListener('drop', e=>{
+      e.preventDefault();
+      const id = e.dataTransfer.getData('text/plain');
+      const tileEl = document.querySelector(`.tile[data-id="${id}"]`);
+      if(tileEl && !tileEl.classList.contains('used')) placeLetter(tileEl, slot);
+    });
+  });
+}
+buildBai2();
+
+function gradeBai2(){
+  let correctLetters = 0;
+  bai2Q.forEach((q,i)=>{
+    const item = document.getElementById('qitem2_'+i);
+    const slot = document.getElementById('slot2_'+i);
+    item.classList.remove('correct','wrong');
+    slot.classList.remove('correct','wrong');
+    const ok = slot.dataset.letter === q.letter;
+    if(ok){ item.classList.add('correct'); slot.classList.add('correct'); correctLetters++; }
+    else { item.classList.add('wrong'); if(slot.dataset.letter) slot.classList.add('wrong'); }
+  });
+  const total = correctLetters * 2;
+  setScore(2, total);
+  const msg = document.getElementById('resultBai2');
+  msg.classList.add('show');
+  if(correctLetters === bai2Q.length){
+    msg.className='result-msg show good';
+    msg.textContent = '🎉 Chính xác! Mật mã là "CỐ LÊN" – Robot rất cảm ơn em!';
+    playFanfare(); launchConfetti(40);
+  } else {
+    msg.className='result-msg show mid';
+    msg.textContent = '👍 Em kéo đúng '+correctLetters+'/5 chữ cái. Kiểm tra lại các ô viền đỏ nhé!';
+    playWrong();
+  }
+}
+
+/* ================= BAI 4 ================= */
+function buildBai4(){
+  const path = document.getElementById('footpath4');
+  path.innerHTML = '';
+  const row1 = document.createElement('div'); row1.className='fp-row';
+  const row2 = document.createElement('div'); row2.className='fp-row';
+  bai4Data.forEach((d,i)=>{
+    const el = document.createElement('div');
+    el.className='footprint'; el.dataset.index=i;
+    el.innerHTML = `<span class="toes">👣</span><span>${d.expr}</span>`;
+    el.addEventListener('click', ()=>{
+      el.classList.toggle('selected');
+      el.classList.remove('correct','wrong');
+      playClick();
+    });
+    (i<5?row1:row2).appendChild(el);
+  });
+  const connector = document.createElement('div');
+  connector.className = 'row-connector';
+  connector.innerHTML = '<svg viewBox="0 0 180 34" preserveAspectRatio="none"><path d="M170,4 Q90,40 10,4" fill="none" stroke="#B79A5C" stroke-width="3" stroke-dasharray="7,7" stroke-linecap="round"/></svg>';
+  path.appendChild(row1); path.appendChild(connector); path.appendChild(row2);
+}
+buildBai4();
+
+function gradeBai4(){
+  let correct = 0;
+  const els = document.querySelectorAll('#footpath4 .footprint');
+  const correctEls = [];
+  els.forEach((el,i)=>{
+    const isSelected = el.classList.contains('selected');
+    const shouldBe = bai4Data[i].correct;
+    el.classList.remove('correct','wrong');
+    if(isSelected === shouldBe && shouldBe){ el.classList.add('correct'); correct++; correctEls.push(el); }
+    else if(isSelected && !shouldBe){ el.classList.add('wrong'); }
+    else if(!isSelected && shouldBe){ el.classList.add('wrong'); }
+  });
+  setScore(4, correct);
+  const msg = document.getElementById('resultBai4');
+  msg.classList.add('show');
+  const allCorrect = correct===4 && document.querySelectorAll('#footpath4 .footprint.selected').length===4;
+  if(allCorrect){
+    msg.className='result-msg show good';
+    msg.textContent = '🎉 Chính xác! Robot đã tìm ra con đường đến kho báu!';
+    animateRobot(correctEls);
+    playFanfare();
+  } else {
+    msg.className='result-msg show mid';
+    msg.textContent = '👍 Em chọn đúng '+correct+'/4 dấu chân của bảng nhân 5. Kiểm tra lại các ô viền đỏ nhé!';
+    playWrong();
+  }
+}
+function animateRobot(correctEls){
+  const robot = document.getElementById('robotIcon');
+  const track = document.getElementById('robotTrack');
+  const trackRect = track.getBoundingClientRect();
+  let delay = 0;
+  correctEls.forEach((el)=>{
+    const r = el.getBoundingClientRect();
+    const left = r.left - trackRect.left + r.width/2 - 20;
+    setTimeout(()=>{
+      robot.style.left = left+'px';
+      robot.style.transform = 'scaleX(-1)';
+      playCoin();
+    }, delay);
+    delay += 500;
+  });
+  setTimeout(()=>{
+    robot.style.left = (track.offsetWidth-50)+'px';
+    launchConfetti(35);
+  }, delay+200);
+}
+
+/* ================= BAI 5 ================= */
+function gradeBai5(){
+  const text = document.getElementById('giaibai5').value;
+  const dapso = document.getElementById('dapso5').value;
+  const combined = text + ' ' + dapso;
+  const ok = /(^|[^0-9])45([^0-9]|$)/.test(combined) || combined.trim()==='45';
+  const msg = document.getElementById('resultBai5');
+  msg.classList.add('show');
+  const chest = document.getElementById('chestIcon');
+  if(ok){
+    setScore(5, 10);
+    msg.className='result-msg show good';
+    msg.textContent = '🎉 Chính xác! 9 × 5 = 45 viên kim cương. Rương kho báu đã mở!';
+    chest.textContent='💎';
+    chest.classList.add('open');
+    document.getElementById('lockMsg').textContent = '🔓 Đã mở khóa thành công! Kho báu là của em!';
+    playUnlock();
+    playApplause();
+    launchConfetti(70);
+  } else {
+    setScore(5, 0);
+    msg.className='result-msg show mid';
+    msg.textContent = '🤔 Chưa đúng rồi! Em hãy kiểm tra lại phép tính 9 × 5 nhé.';
+    playWrong();
+  }
+}
+
+/* ================= INIT ================= */
+function buildAll(){
+  // grids already built at load; nothing else required here
+}
+</script>
+</body>
+</html>
