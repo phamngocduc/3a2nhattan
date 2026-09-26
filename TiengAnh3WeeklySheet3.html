@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BPH 3A8 Weekly Sheet 3 - Unit 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --orange:#FF7A33; --orange-dark:#E8590C; --orange-light:#FFE8D6;
+  --cream:#FFFBF5; --ink:#4A3520; --green:#2F9E44; --green-l:#EBFBEE;
+  --red:#E03131; --red-l:#FFF0F0; --card:#FFFFFF;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:'Nunito',sans-serif;min-height:100%;}
+h1,h2,h3,.btn,.tile,.opt{font-family:'Baloo 2',sans-serif;}
+.wrap{max-width:760px;margin:0 auto;padding:18px 16px 40px;}
+header.top{background:linear-gradient(135deg,var(--orange),#FFB073);color:#fff;padding:22px 18px 26px;border-radius:0 0 28px 28px;text-align:center;box-shadow:0 6px 18px rgba(232,89,12,.25);}
+header.top h1{margin:0 0 4px;font-size:1.35rem;font-weight:800;letter-spacing:.5px;}
+header.top h2{margin:0;font-size:1.05rem;font-weight:700;opacity:.95;}
+.card{background:var(--card);border-radius:20px;padding:20px 18px;margin:18px 0;box-shadow:0 4px 14px rgba(232,89,12,.08);border:1px solid #FFE0C2;}
+.card h3{margin:0 0 14px;color:var(--orange-dark);font-size:1.15rem;display:flex;align-items:center;gap:8px;}
+label{font-weight:700;display:block;margin:10px 0 4px;font-size:.95rem;}
+input[type=text]{width:100%;padding:12px 14px;border-radius:12px;border:2px solid var(--orange-light);font-size:1rem;font-family:inherit;background:#FFF;}
+input[type=text]:focus{outline:none;border-color:var(--orange);}
+.btn{display:inline-block;background:var(--orange);color:#fff;border:none;padding:13px 26px;border-radius:16px;font-size:1.05rem;font-weight:700;cursor:pointer;box-shadow:0 4px 0 var(--orange-dark);transition:transform .08s;}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--orange-dark);}
+.btn:disabled{opacity:.5;cursor:default;}
+.btn.full{width:100%;text-align:center;}
+.topbar{position:sticky;top:0;z-index:20;background:var(--cream);padding:8px 0;display:flex;justify-content:space-between;align-items:center;font-weight:800;color:var(--orange-dark);border-bottom:2px dashed var(--orange-light);}
+.timer{background:#fff;border:2px solid var(--orange);border-radius:14px;padding:6px 14px;font-size:1.05rem;}
+.timer.low{color:var(--red);border-color:var(--red);}
+.progress{font-size:.85rem;color:var(--ink);}
+
+/* Exercise 1 - drag drop */
+.word-row{margin-bottom:22px;}
+.letters-label{font-weight:800;color:var(--orange-dark);margin-bottom:8px;font-size:1rem;}
+.tray, .slots{display:flex;flex-wrap:wrap;gap:8px;min-height:52px;padding:6px;border-radius:12px;}
+.slots{background:var(--orange-light);border:2px dashed var(--orange);margin-bottom:8px;}
+.tray{background:#FFF6EC;}
+.tile{width:44px;height:44px;background:#fff;border:2px solid var(--orange);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:800;color:var(--orange-dark);cursor:grab;touch-action:none;user-select:none;box-shadow:0 2px 4px rgba(0,0,0,.08);}
+.slot{width:44px;height:44px;border-radius:10px;background:#fff;border:2px solid #FFC896;}
+.slot.filled{border-style:solid;}
+.word-row.correct .slots{background:var(--green-l);border-color:var(--green);}
+.word-row.correct .tile{border-color:var(--green);color:var(--green);}
+.check-badge{color:var(--green);font-weight:800;margin-left:8px;}
+.tile.dragging{opacity:.35;}
+.floating-tile{position:fixed;pointer-events:none;z-index:999;width:44px;height:44px;background:#fff;border:2px solid var(--orange-dark);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:800;color:var(--orange-dark);box-shadow:0 6px 14px rgba(0,0,0,.25);}
+
+/* Exercise 2 & 3 options */
+.qblock{margin-bottom:20px;}
+.qtitle{font-weight:700;margin-bottom:8px;}
+.opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--orange-light);border-radius:12px;padding:11px 14px;margin-bottom:8px;font-size:.97rem;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;color:var(--ink);}
+.opt:active{transform:scale(.99);}
+.opt.correct{background:var(--green-l);border-color:var(--green);color:var(--green);}
+.opt.wrong{background:var(--red-l);border-color:var(--red);color:var(--red);}
+.opt.locked{opacity:.55;pointer-events:none;}
+.opt.disabled{pointer-events:none;}
+
+.mcq-options{display:flex;flex-wrap:wrap;gap:8px;}
+.mcq-options .opt{flex:1 1 45%;text-align:center;}
+
+footer.credit{text-align:center;color:#B07A4F;font-size:.85rem;margin-top:30px;padding-bottom:10px;}
+
+.screen{display:none;}
+.screen.active{display:block;}
+
+.result-card{text-align:center;padding:34px 20px;}
+.result-card .emoji{font-size:3.2rem;}
+.result-card h2{color:var(--orange-dark);margin:6px 0;}
+.result-card .score{font-size:2rem;font-weight:800;color:var(--green);margin:10px 0;}
+.result-card p{margin:4px 0;}
+.confetti{position:fixed;top:-20px;width:10px;height:10px;border-radius:2px;z-index:998;}
+</style>
+</head>
+<body>
+
+<div id="screen-start" class="screen active">
+  <header class="top">
+    <h1>BPH 3A8 Weekly Sheet 3</h1>
+    <h2>UNIT 2. OUR NAMES</h2>
+  </header>
+  <div class="wrap">
+    <div class="card">
+      <h3>👋 Thông tin học sinh</h3>
+      <label for="stuName">Họ và tên</label>
+      <input type="text" id="stuName" placeholder="Nhập họ và tên của em">
+      <label for="stuClass">Lớp</label>
+      <input type="text" id="stuClass" value="3A8">
+      <p style="margin-top:14px;font-size:.9rem;color:#8a6a4a;">⏱ Thời gian làm bài: 20 phút. Mỗi câu đúng được 1 điểm. Cố lên nhé!</p>
+      <button class="btn full" id="startBtn" style="margin-top:12px;">🚀 Bắt đầu làm bài</button>
+    </div>
+  </div>
+</div>
+
+<div id="screen-test" class="screen">
+  <div class="wrap">
+    <div class="topbar">
+      <span id="hiStudent"></span>
+      <span class="timer" id="timerBox">20:00</span>
+    </div>
+
+    <div class="card">
+      <h3>📝 Bài tập 1: Reorder the letters</h3>
+      <div id="ex1"></div>
+    </div>
+
+    <div class="card">
+      <h3>✅ Bài tập 2: Underline the mistakes and correct them</h3>
+      <p style="margin:-6px 0 14px;font-style:italic;color:#B07A4F;">(Hãy chọn 1 câu viết đúng ngữ pháp)</p>
+      <div id="ex2"></div>
+    </div>
+
+    <div class="card">
+      <h3>🎯 Bài tập 3: Choose the correct answers</h3>
+      <div id="ex3"></div>
+    </div>
+
+    <button class="btn full" id="submitBtn">📩 Nộp bài</button>
+    <footer class="credit">Designed by Thầy Ngọc Đức ☎ 0961366868</footer>
+  </div>
+</div>
+
+<div id="screen-result" class="screen">
+  <div class="wrap">
+    <div class="card result-card" id="resultCard"></div>
+    <footer class="credit">Designed by Thầy Ngọc Đức ☎ 0961366868</footer>
+  </div>
+</div>
+
+<script>
+/* ---------- AUDIO ---------- */
+let actx;
+function ac(){ if(!actx) actx=new (window.AudioContext||window.webkitAudioContext)(); return actx; }
+function tone(freq,start,dur,type='sine',vol=.22){
+  const c=ac(), o=c.createOscillator(), g=c.createGain();
+  o.type=type; o.frequency.value=freq;
+  g.gain.setValueAtTime(0,c.currentTime+start);
+  g.gain.linearRampToValueAtTime(vol,c.currentTime+start+.02);
+  g.gain.exponentialRampToValueAtTime(.001,c.currentTime+start+dur);
+  o.connect(g).connect(c.destination);
+  o.start(c.currentTime+start); o.stop(c.currentTime+start+dur+.05);
+}
+function playTing(){ tone(880,0,.12,'sine',.25); tone(1320,.08,.18,'sine',.2); }
+function playTeng(){ tone(220,0,.28,'sawtooth',.22); tone(160,.1,.3,'sawtooth',.18); }
+function playPop(){ tone(600,0,.06,'triangle',.18); }
+function playClap(){
+  const c=ac();
+  for(let i=0;i<10;i++){
+    const t=i*.09+Math.random()*.02;
+    const bufSize=c.sampleRate*0.08;
+    const buf=c.createBuffer(1,bufSize,c.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let j=0;j<bufSize;j++){ d[j]=(Math.random()*2-1)*(1-j/bufSize); }
+    const src=c.createBufferSource(); src.buffer=buf;
+    const g=c.createGain(); g.gain.value=.25;
+    const f=c.createBiquadFilter(); f.type='highpass'; f.frequency.value=1200;
+    src.connect(f).connect(g).connect(c.destination);
+    src.start(c.currentTime+t);
+  }
+}
+function playFanfare(){
+  [523,659,784,1046].forEach((f,i)=>tone(f,i*.14,.35,'triangle',.22));
+}
+function playSad(){ tone(300,0,.3,'sine',.18); tone(220,.28,.4,'sine',.18); }
+
+/* ---------- DATA ---------- */
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+
+const WORD_DATA = [
+  {letters:['H','T','A','W'], answers:['WHAT']},
+  {letters:['U','O','Y'], answers:['YOU']},
+  {letters:['Y','M'], answers:['MY']},
+  {letters:['L','O','H','L','E'], answers:['HELLO']},
+  {letters:['E','B','Y'], answers:['BYE']},
+  {letters:['M','N','E','A'], answers:['NAME','MEAN']},
+  {letters:['R','Y','U','O'], answers:['YOUR']},
+  {letters:['W','O','H'], answers:['HOW','WHO']},
+  {letters:['L','O','D'], answers:['OLD']},
+  {letters:['T','Y','H','E'], answers:['THEY']}
+];
+
+const EX2_DATA = [
+  {correct:"A: What's your name? - B: My name's Tam.",
+   wrong:["A: What's you name? - B: My name's Tam.","A: What's your name? - B: Your name's Tam.","A: What's your name? - B: His name's Tam."]},
+  {correct:"A: How old is he? - B: He is seven years old.",
+   wrong:["A: How old is his? - B: He is seven year old.","A: How old is you? - B: He is seven years old.","A: How old is yours? - B: You is seven years old."]},
+  {correct:"A: How are you? - B: I'm fine, thanks.",
+   wrong:["A: How are your? - B: I'm fine, thanks.","A: How are you? - B: I fine, thanks.","A: How are you? - B: I am fine, thank."]},
+  {correct:"A: Hello! What's your name? - B: I'm Tom.",
+   wrong:["A: Hello! What's you name? - B: I'm Tom.","A: Hello! What's his name? - B: I'm Tom.","A: Hello! What's your name? - B: I Tom."]}
+];
+
+const EX3_DATA = [
+  {q:"1. ___ your name?", correct:"What", wrong:["How","How's","What's"]},
+  {q:"2. My name ___ Jack.", correct:"is", wrong:["am","are","to"]},
+  {q:"3. How ___ are you?", correct:"old", wrong:["time","do","name"]},
+  {q:"4. Tom is my older brother. He's 7 ___ old.", correct:"years", wrong:["are","name","year"]},
+  {q:"5. What's your name? - ___ name is Huong.", correct:"My", wrong:["How","Her","Your"]}
+];
+
+let TOTAL = WORD_DATA.length + EX2_DATA.length + EX3_DATA.length;
+let score = {ex1:0, ex2:0, ex3:0};
+let timeLeft = 20*60, timerId=null, startTime=null;
+
+/* ---------- EXERCISE 1 (drag & drop) ---------- */
+function shuffleDifferent(arr){
+  if(arr.length<2) return arr.slice();
+  let r=shuffle(arr);
+  let tries=0;
+  while(r.join('')===arr.join('') && tries<10){ r=shuffle(arr); tries++; }
+  return r;
+}
+let EX1_ORDER=[];
+function buildEx1(){
+  const container=document.getElementById('ex1'); container.innerHTML='';
+  EX1_ORDER=shuffleDifferent(WORD_DATA.map((_,i)=>i));
+  EX1_ORDER.forEach((origIdx,rowPos)=>{
+    const w=WORD_DATA[origIdx];
+    const row=document.createElement('div'); row.className='word-row'; row.dataset.idx=rowPos; row.dataset.word=origIdx;
+    const lbl=document.createElement('div'); lbl.className='letters-label';
+    lbl.innerHTML = (rowPos+1)+'. '+w.letters.join('-')+' <span class="check-badge" style="display:none;">✔ Đúng!</span>';
+    const slots=document.createElement('div'); slots.className='slots';
+    for(let i=0;i<w.letters.length;i++){
+      const s=document.createElement('div'); s.className='slot'; s.dataset.row=rowPos; s.dataset.pos=i;
+      slots.appendChild(s);
+    }
+    const tray=document.createElement('div'); tray.className='tray'; tray.dataset.row=rowPos;
+    shuffleDifferent(w.letters).forEach(ch=>{
+      const t=document.createElement('div'); t.className='tile'; t.textContent=ch; t.dataset.row=rowPos;
+      tray.appendChild(t);
+    });
+    row.appendChild(lbl); row.appendChild(slots); row.appendChild(tray);
+    container.appendChild(row);
+  });
+  enableDrag();
+}
+
+let dragEl=null, dragFrom=null, floatEl=null;
+function enableDrag(){
+  document.querySelectorAll('.tile').forEach(t=>{
+    t.addEventListener('pointerdown', onDown);
+  });
+}
+function onDown(e){
+  const tile=e.currentTarget;
+  if(tile.parentElement.closest('.word-row').classList.contains('correct')) return;
+  dragEl=tile; dragFrom=tile.parentElement;
+  tile.classList.add('dragging');
+  floatEl=document.createElement('div'); floatEl.className='floating-tile'; floatEl.textContent=tile.textContent;
+  document.body.appendChild(floatEl);
+  moveFloat(e);
+  document.addEventListener('pointermove', onMove);
+  document.addEventListener('pointerup', onUp);
+}
+function moveFloat(e){
+  floatEl.style.left=(e.clientX-22)+'px';
+  floatEl.style.top=(e.clientY-22)+'px';
+}
+function onMove(e){ if(floatEl) moveFloat(e); }
+function onUp(e){
+  document.removeEventListener('pointermove', onMove);
+  document.removeEventListener('pointerup', onUp);
+  if(floatEl){ floatEl.remove(); floatEl=null; }
+  if(!dragEl) return;
+  dragEl.classList.remove('dragging');
+  const el=document.elementFromPoint(e.clientX,e.clientY);
+  const slot=el ? el.closest('.slot') : null;
+  const trayZone=el ? el.closest('.tray') : null;
+  if(slot && slot.dataset.row===dragEl.dataset.row){
+    if(slot.firstChild && slot.firstChild!==dragEl){
+      // swap: move existing occupant back to dragFrom
+      dragFrom.appendChild(slot.firstChild);
+    }
+    slot.classList.add('filled');
+    slot.appendChild(dragEl);
+    checkRow(dragEl.dataset.row);
+  } else if(trayZone && trayZone.dataset.row===dragEl.dataset.row){
+    trayZone.appendChild(dragEl);
+    const oldSlot = dragFrom.classList && dragFrom.classList.contains('slot') ? dragFrom : null;
+    if(oldSlot) oldSlot.classList.remove('filled');
+  }
+  dragEl=null; dragFrom=null;
+}
+function checkRow(rowIdx){
+  const row=document.querySelector('.word-row[data-idx="'+rowIdx+'"]');
+  const slots=row.querySelectorAll('.slot');
+  let letters=[]; let full=true;
+  slots.forEach(s=>{ if(s.firstChild) letters.push(s.firstChild.textContent); else full=false; });
+  if(!full) return;
+  const word=letters.join('');
+  const origIdx=EX1_ORDER[rowIdx];
+  const answers=WORD_DATA[origIdx].answers;
+  if(answers.includes(word)){
+    if(!row.classList.contains('correct')){
+      row.classList.add('correct');
+      row.querySelector('.check-badge').style.display='inline';
+      score.ex1++;
+      playTing();
+      checkAllDone();
+    }
+  }
+}
+
+/* ---------- EXERCISE 2 ---------- */
+function buildEx2(){
+  const container=document.getElementById('ex2'); container.innerHTML='';
+  EX2_DATA.forEach((q,idx)=>{
+    const block=document.createElement('div'); block.className='qblock'; block.dataset.idx=idx;
+    const title=document.createElement('div'); title.className='qtitle'; title.textContent=(idx+1)+'.';
+    block.appendChild(title);
+    const opts=shuffle([{t:q.correct,ok:true}, ...q.wrong.map(w=>({t:w,ok:false}))]);
+    opts.forEach(o=>{
+      const b=document.createElement('button'); b.className='opt'; b.textContent=o.t;
+      b.addEventListener('click',()=>handleEx2Click(block,b,o.ok));
+      block.appendChild(b);
+    });
+    container.appendChild(block);
+  });
+}
+function handleEx2Click(block,btn,isOk){
+  if(block.classList.contains('solved')) return;
+  if(isOk){
+    btn.classList.add('correct');
+    block.querySelectorAll('.opt').forEach(o=>o.classList.add('locked'));
+    block.classList.add('solved');
+    score.ex2++;
+    playTing();
+    checkAllDone();
+  } else {
+    btn.classList.add('wrong');
+    playTeng();
+    block.querySelectorAll('.opt').forEach(o=>o.classList.add('locked'));
+    setTimeout(()=>{
+      block.querySelectorAll('.opt').forEach(o=>{ if(!o.classList.contains('correct')) o.classList.remove('locked'); });
+      btn.classList.remove('wrong');
+    },3000);
+  }
+}
+
+/* ---------- EXERCISE 3 ---------- */
+function buildEx3(){
+  const container=document.getElementById('ex3'); container.innerHTML='';
+  EX3_DATA.forEach((q,idx)=>{
+    const block=document.createElement('div'); block.className='qblock'; block.dataset.idx=idx;
+    const title=document.createElement('div'); title.className='qtitle'; title.textContent=q.q;
+    block.appendChild(title);
+    const optsWrap=document.createElement('div'); optsWrap.className='mcq-options';
+    const opts=shuffle([{t:q.correct,ok:true}, ...q.wrong.map(w=>({t:w,ok:false}))]);
+    opts.forEach(o=>{
+      const b=document.createElement('button'); b.className='opt'; b.textContent=o.t;
+      b.addEventListener('click',()=>handleEx3Click(block,b,o.ok));
+      optsWrap.appendChild(b);
+    });
+    block.appendChild(optsWrap);
+    container.appendChild(block);
+  });
+}
+function handleEx3Click(block,btn,isOk){
+  if(block.classList.contains('solved')) return;
+  if(isOk){
+    btn.classList.add('correct');
+    block.querySelectorAll('.opt').forEach(o=>o.classList.add('locked'));
+    block.classList.add('solved');
+    score.ex3++;
+    playTing();
+    checkAllDone();
+  } else {
+    btn.classList.add('wrong');
+    playTeng();
+    block.querySelectorAll('.opt').forEach(o=>o.classList.add('locked'));
+    setTimeout(()=>{
+      block.querySelectorAll('.opt').forEach(o=>{ if(!o.classList.contains('correct')) o.classList.remove('locked'); });
+      btn.classList.remove('wrong');
+    },3000);
+  }
+}
+
+function checkAllDone(){
+  const total=score.ex1+score.ex2+score.ex3;
+  if(total===TOTAL){
+    setTimeout(()=>finishTest(false),300);
+  }
+}
+
+/* ---------- TIMER ---------- */
+function fmt(s){ const m=Math.floor(s/60), ss=s%60; return (m<10?'0':'')+m+':'+(ss<10?'0':'')+ss; }
+function startTimer(){
+  startTime=Date.now();
+  timerId=setInterval(()=>{
+    timeLeft--;
+    const box=document.getElementById('timerBox');
+    box.textContent=fmt(Math.max(timeLeft,0));
+    if(timeLeft<=60) box.classList.add('low');
+    if(timeLeft<=0){ clearInterval(timerId); finishTest(true); }
+  },1000);
+}
+
+/* ---------- FLOW ---------- */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  ac();
+  const name=document.getElementById('stuName').value.trim();
+  const cls=document.getElementById('stuClass').value.trim()||'3A8';
+  if(!name){ alert('Em ơi, nhập họ tên trước khi bắt đầu nhé!'); return; }
+  window.studentName=name; window.studentClass=cls;
+  document.getElementById('hiStudent').textContent='👤 '+name+' - Lớp '+cls;
+  buildEx1(); buildEx2(); buildEx3();
+  showScreen('screen-test');
+  startTimer();
+});
+document.getElementById('submitBtn').addEventListener('click', ()=>finishTest(false));
+
+function finishTest(timedOut){
+  if(timerId) clearInterval(timerId);
+  const elapsedSec=Math.round((Date.now()-startTime)/1000);
+  const totalScore=score.ex1+score.ex2+score.ex3;
+  const card=document.getElementById('resultCard');
+  if(!timedOut && totalScore===TOTAL){
+    card.innerHTML=`<div class="emoji">🎉🏆🎉</div>
+      <h2>Chúc mừng ${window.studentName}!</h2>
+      <p>Lớp ${window.studentClass}</p>
+      <div class="score">${totalScore}/${TOTAL} điểm</div>
+      <p>⏱ Thời gian làm bài: ${fmt(elapsedSec)}</p>
+      <p>Em đã hoàn thành xuất sắc bài kiểm tra! 👏👏👏</p>
+      <button class="btn full" onclick="location.reload()" style="margin-top:16px;">🔁 Làm lại</button>`;
+    playFanfare(); setTimeout(playClap,500);
+    launchConfetti();
+  } else if(timedOut){
+    card.innerHTML=`<div class="emoji">⏰</div>
+      <h2>Hết giờ làm bài!</h2>
+      <p>${window.studentName} - Lớp ${window.studentClass}</p>
+      <div class="score">${totalScore}/${TOTAL} điểm</div>
+      <p>Bạn được ${totalScore} điểm trên tổng số ${TOTAL} điểm.</p>
+      <button class="btn full" onclick="location.reload()" style="margin-top:16px;">🔁 Làm lại</button>`;
+    playSad();
+  } else {
+    card.innerHTML=`<div class="emoji">📋</div>
+      <h2>Đã nộp bài!</h2>
+      <p>${window.studentName} - Lớp ${window.studentClass}</p>
+      <div class="score">${totalScore}/${TOTAL} điểm</div>
+      <p>⏱ Thời gian làm bài: ${fmt(elapsedSec)}</p>
+      <button class="btn full" onclick="location.reload()" style="margin-top:16px;">🔁 Làm lại</button>`;
+    playFanfare();
+  }
+  showScreen('screen-result');
+}
+function launchConfetti(){
+  const colors=['#FF7A33','#FFB073','#2F9E44','#FFD43B','#4DABF7'];
+  for(let i=0;i<40;i++){
+    setTimeout(()=>{
+      const c=document.createElement('div'); c.className='confetti';
+      c.style.left=Math.random()*100+'vw';
+      c.style.background=colors[Math.floor(Math.random()*colors.length)];
+      c.style.transform='rotate('+(Math.random()*360)+'deg)';
+      document.body.appendChild(c);
+      c.animate([{top:'-20px',opacity:1},{top:'100vh',opacity:.8}],{duration:2200+Math.random()*1500,easing:'ease-in'});
+      setTimeout(()=>c.remove(),3800);
+    }, i*40);
+  }
+}
+</script>
+</body>
+</html>
